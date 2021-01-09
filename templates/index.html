@@ -1,0 +1,41 @@
+{% extends "base.html" %} {% block title %} COMET Home{% endblock %} {% block content
+    %}
+<style>
+  .center {
+    text-align: center;
+  }
+</style>
+
+<div class="container">
+  <hr />
+  <div class="center">
+    <h1>COMET: COmparative Mutation Effect Tool</h1>
+    <p>Analyzing SNPs through protein-protein interactions.</p>
+    <input type="button" class="btn btn-outline-dark btn-lg" onClick="location.href='/input'" value="Start Analysis" />
+  </div>
+  <hr />
+
+  <h2>∆∆G predictors</h2>
+  <h3>SAAMBE 3D</h3>
+  <p>
+    Pahari, S., Li, G., Murthy, A. K., Liang, S., Fragoza, R., Yu, H., & Alexov,
+    E. (2020). SAAMBE-3D: Predicting Effect of Mutations on Protein–Protein
+    Interactions. International journal of molecular sciences, 21(7), 2563.
+  </p>
+  <a href="http://compbio.clemson.edu/saambe_webserver/">SAAMBE Website</a>
+  <h3>I-Mutant2.0</h3>
+  <p>
+    Capriotti, E., Fariselli, P., & Casadio, R. (2005). I-Mutant2.0: predicting
+    stability changes upon mutation from the protein sequence or structure.
+    Nucleic acids research, 33, W306 - W310.
+  </p>
+  <a href="https://folding.biofold.org/i-mutant/i-mutant2.0.html">I-Mutant2.0 Website</a>
+  <h3>UEP</h3>
+  <p>
+    Amengual-Rigo, P., Fernández-Recio, J., & Guallar, V. (2020). UEP: an
+    open-source and fast classifier for predicting the impact of mutations
+    in protein–protein complexes. Bioinformatics.
+  </p>
+  <a href="https://github.com/pepamengual/UEP">UEP GitHub</a>
+</div>
+{% endblock %}

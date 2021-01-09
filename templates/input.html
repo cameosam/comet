@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block title %}Input{% endblock %} {% block content
+    %}
+<div class="container">
+    <h3>Step 1: Upload a genotype file</h3>
+    <p>This kind of file can be downloaded from <a href="https://opensnp.org/">OpenSNP</a> if you prefer not to upload
+        your personal genotype file.</p>
+    <form method=post enctype=multipart/form-data> <input type=file name=file>
+        <input type=submit value=Upload>
+    </form>
+</div>
+{% endblock %}
