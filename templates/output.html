@@ -1,78 +1,80 @@
 {% extends "base.html" %} {% block title %}Results{% endblock %} {% block
     content %}
-    
-    <style>
-      table {
-        border-collapse: collapse;
-        width: 100%;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 8px;
-      }
-      h3 {
-        padding: 10px;
-        background-color: #f2f2f2;
-      }
-    </style>
-    <body>
-      <div class="container">
-        <br />
-        <h1>Results</h1>
-        <br />
-        <p>The selected SNP is {{snp}}</p>
-        <p>The corresponding gene is {{gene}} located on Chromosome {{chr}}</p>
-        <p>Your genotype is {{genotype}}</p>
-        <h3>Substitutions</h3>
-        <table>
-          <tr>
-            <th>Nucleotide </th>
-            <th>Nucleotide documentation count</th>
-            <th>Amino acid</th>
-            <th>Amino acid documentation count</th>
-          </tr>
-          {% for i in subs %}
-          <tr>
-            <td>{{i[0]}}</td>
-            <td>{{i[1]}}</td>
-            <td>{{i[2]}}</td>
-            <td>{{i[3]}}</td>
-          </tr>
-          {% endfor %}
-        </table>
-        <h3>Change in binding affinity (∆∆G)</h3>
-        <p>Calculated with {{pdbselect}} and {{aa1}}</p>
-        <table id="example" class="display" style="width:100%">
-          <tr>
-            <th>Program</th>
-            <th>∆∆G (kcal/mol)</th>
-            <th>Effect</th>
-          </tr>
-          <tr>
-            <td>SAAMBE-3D</td>
-            <td>{{ddgresults[0][0]}}</td>
-            <td>{{ddgresults[0][1]}}</td>
-          </tr>
-          <tr>
-            <td>I-Mutant2.0 Structure</td>
-            <td>{{ddgresults[1][0]}}</td>
-            <td>{{ddgresults[1][1]}}</td></td>
-          </tr>
-          <tr>
-            <td>I-Mutant2.0 Sequence</td>
-            <td>{{ddgresults[2][0]}}</td>
-            <td>{{ddgresults[2][1]}}</td></td>
-          </tr>
-          <tr>
-            <td>UEP</td>
-            <td>{{ddgresults[3][0]}}</td>
-            <td>{{ddgresults[3][1]}}</td></td>
-          </tr>
-        </table>
-        <p>* UEP only evaluates mutations located in highly-packed interface positions</p>
-        <h3>Frequency</h3>
-        <!-- ript src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 8px;
+  }
+
+  h3 {
+    padding: 10px;
+    background-color: #f2f2f2;
+  }
+
+  #title {
+    display: flex;
+    position: relative;
+  }
+  button {
+    padding-top: 20px;
+    position: absolute;
+    right: 0;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <div class id="title">
+      <h1>Results</h1>
+      <button onclick="javascript:window.history.back();">Go Back</button>
+    </div>
+
+    <p>The selected SNP is {{snp}}</p>
+    <p>The corresponding gene is {{gene}} located on Chromosome {{chr}}</p>
+    <p>Your genotype is {{genotype}}</p>
+    <h3>Substitutions</h3>
+    <table>
+      <tr>
+        <th>Nucleotide </th>
+        <th>Nucleotide documentation count</th>
+        <th>Amino acid</th>
+        <th>Amino acid documentation count</th>
+      </tr>
+      {% for i in subs %}
+      <tr>
+        <td>{{i[0]}}</td>
+        <td>{{i[1]}}</td>
+        <td>{{i[2]}}</td>
+        <td>{{i[3]}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <h3>Change in binding affinity (∆∆G)</h3>
+    <p>Calculated with {{pdbselect}} and {{aa1}}</p>
+    <table id="example" class="display" style="width:100%">
+      <tr>
+        <th>Program</th>
+        <th>∆∆G (kcal/mol)</th>
+        <th>Effect</th>
+      </tr>
+      {% for i in range(0, len(ddgresults)) %}
+      <tr>
+        <td>{{ddgresults[i][0]}}</td>
+        <td>{{ddgresults[i][1]}}</td>
+        <td>{{ddgresults[i][2]}}</td>
+      </tr>
+      {% endfor %}
+      </tr>
+    </table>
+    <p>* UEP only evaluates mutations located in highly-packed interface positions</p>
+    <h3>Frequency</h3>
+    <!-- ript src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
         <div id="contain">
           <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: right;">
           <canvas id="chart1" width="30" height="20" style=" float:left;margin-left:2em"></canvas></div>
@@ -121,63 +123,65 @@
               }
           });
         </script> -->
-        <table>
-          <tr>
-            <th>Project</th>
-            <th>Frequency</th>
-          </tr>
-          <tr>
-            <td>1000 Genomes Project</td>
-            <td>{{freq1000g}}</td>
-          </tr>
-          <tr>
-            <td>HapMap Project</td>
-            <td>{{freqhapmap}}</td>
-          </tr>
-        </table>
-        <h3>Clinical significance</h3>
-        {% for item in clin %}
-        <ul>
-          <li>{{item}}</li>
-        </ul>
-        {% endfor %}
-        <h3>Protein viewer</h3>
-        <p>The specific areas (if any) that the {{gene}} protein is affected by {{snp}} in {{pdbselect}} is shown in purple.</p>
-        <div>
-      
-          <script src="https://cdn.rawgit.com/arose/ngl/v0.10.4-1/dist/ngl.js "></script>
-      
-          <script>
-            var pdbfile = '{{ pdbselect }}'; 
-            var rscb = "rcsb://";
-            var input = rscb.concat(pdbfile);
-            var chain = ':{{chain}}';
-            document.addEventListener("DOMContentLoaded", function() {
-              var stage = new NGL.Stage("viewport", {
-                backgroundColor: 'white'
-              });
-              var schemeId = NGL.ColormakerRegistry.addSelectionScheme([
-                ["purple", chain],
-                ["grey", "*"]
-              ])
-              stage.loadFile(input).then(function (o) {
-            o.addRepresentation("ribbon", {colorScheme: schemeId});
+    <table>
+      <tr>
+        <th>Project</th>
+        <th>Frequency</th>
+      </tr>
+      <tr>
+        <td>1000 Genomes Project</td>
+        <td>{{freq1000g}}</td>
+      </tr>
+      <tr>
+        <td>HapMap Project</td>
+        <td>{{freqhapmap}}</td>
+      </tr>
+    </table>
+    <h3>Clinical significance</h3>
+    {% for item in clin %}
+    <ul>
+      <li>{{item}}</li>
+    </ul>
+    {% endfor %}
+    <h3>Protein viewer</h3>
+    <p>The specific areas (if any) that the {{gene}} protein is affected by {{snp}} in {{pdbselect}} is shown in purple.
+    </p>
+    <div>
+
+      <script src="https://cdn.rawgit.com/arose/ngl/v0.10.4-1/dist/ngl.js "></script>
+
+      <script>
+        var pdbfile = '{{ pdbselect }}';
+        var rscb = "rcsb://";
+        var input = rscb.concat(pdbfile);
+        var chain = ':{{chain}}';
+        document.addEventListener("DOMContentLoaded", function () {
+          var stage = new NGL.Stage("viewport", {
+            backgroundColor: 'white'
+          });
+          var schemeId = NGL.ColormakerRegistry.addSelectionScheme([
+            ["purple", chain],
+            ["grey", "*"]
+          ])
+          stage.loadFile(input).then(function (o) {
+            o.addRepresentation("ribbon", {
+              colorScheme: schemeId
+            });
             o.autoView();
-            });
-            });
-          </script>
-          <div id="viewport" style="width:100%; height:300px;"></div>
-        </div>
-      
-        <h3>PDB files</h3>
-        <form action="#" method="post">
-          {% for i in pdb %}
-          <input type="submit" name="pdbselect" value={{i}}>
-          {% endfor %}
-      </form>
-        
-      </div>
-    </body>
-    
-    {% endblock %}
-    
+          });
+        });
+      </script>
+      <div id="viewport" style="width:100%; height:300px;"></div>
+    </div>
+
+    <h3>PDB files</h3>
+    <form action="#" method="post">
+      {% for i in pdb %}
+      <input type="submit" name="pdbselect" value={{i}}>
+      {% endfor %}
+    </form>
+
+  </div>
+</body>
+
+{% endblock %}

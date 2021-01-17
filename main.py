@@ -5,6 +5,8 @@ import itertools
 import os
 import json
 import pandas as pd
+# from flask_session import Session
+# from datetime import timedelta
 
 from helperfun import findpdb, parsefile, allowed_file, getsnpinfo
 from ddgcalc import ddgcalcs
@@ -12,6 +14,13 @@ from ddgcalc import ddgcalcs
 app = Flask(__name__)
 app.secret_key = "secret"
 app.config['UPLOAD_FOLDER'] = './uploads/'
+# app.config['SESSION_PERMANENT'] = True
+# app.config['SESSION_TYPE'] = 'filesystem'
+# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
+# app.config['SESSION_FILE_THRESHOLD'] = 100 
+# app.config['SECRET_KEY'] = app.secret_key
+# sess = Session()
+# sess.init_app(app)
 
 @app.route("/")
 @app.route("/home")
@@ -26,11 +35,8 @@ def html_page(page_name):
 def endsession():
     if session["file"]:
         os.remove('uploads/'+session["file"])
-    session.pop("file", None)
-    session.pop("chrom", None)
-    session.pop("rsid", None)
-    session.pop("genotype", None)
-    session.pop("output", None)
+    for key in session.keys():
+        session.pop(key)
     flash('Thanks for using COMET. All session data has been deleted')
     return redirect(url_for('index'))
 
@@ -80,7 +86,7 @@ def output():
                 "output"]
             if first_aa != "N/A":
                 ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name)
-            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, subs=subs, chain=chain, zip=zip)
+            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, subs=subs, chain=chain, zip=zip, len=len)
 
     if "rsid" in session:
         rsid = session["rsid"]
@@ -107,7 +113,7 @@ def output():
                                aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg,
                                freqhapmap=freq_hm, clin=clinical,
                                subs=subs, chain=chain,
-                               zip=zip)
+                               zip=zip, len=len)
     else:
         return redirect(url_for("select"))
 

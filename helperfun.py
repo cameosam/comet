@@ -3,9 +3,10 @@ import subprocess
 import time
 import mmap
 import re
-from Bio import Entrez
+from Bio import Entrez, SeqIO
 import json
 import requests
+from io import StringIO
 
 Entrez.email = "casamesh@lakeheadu.ca"
 
@@ -19,7 +20,7 @@ def parsefile(filename, chrom):
     for line in open('uploads/'+filename):
         if '#' not in line and 'i' not in line:
             temp = re.split(r'\t', line.rstrip('\n'))
-            if temp[1] == chrom:
+            if temp[1] == chrom and temp[3] != "--":
                 rslist.append(temp)
     return rslist
 
@@ -79,8 +80,6 @@ def getsnpinfo(rsid):
     chromosome = record['CHR']
     docsum = record['DOCSUM']
     clinical = record['CLINICAL_SIGNIFICANCE'] if record['CLINICAL_SIGNIFICANCE'] !=  '' else "N/A"
-    print(clinical)
-    print("%%%%%%%%%%%")
 
     # substitutions
     nuclist = []
@@ -112,3 +111,12 @@ def getsnpinfo(rsid):
             freq_hm = study['FREQ'].partition("/")[0]
 
     return gene_name, chromosome, freq_kg, freq_hm, clinical.split(","), subs, first_aa
+
+def getsequence(uniprotcode):
+    baseUrl = "http://www.uniprot.org/uniprot/"
+    currentUrl = baseUrl+uniprotcode+".fasta"
+    response = requests.post(currentUrl)
+    cData = ''.join(response.text)
+    Seq = StringIO(cData)
+    pSeq = list(SeqIO.parse(Seq, 'fasta'))
+    return str(pSeq[0].seq)
