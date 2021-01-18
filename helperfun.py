@@ -120,3 +120,9 @@ def getsequence(uniprotcode):
     Seq = StringIO(cData)
     pSeq = list(SeqIO.parse(Seq, 'fasta'))
     return str(pSeq[0].seq)
+
+def muteffect(ddg, posdes):
+    if posdes == True:
+        return "Decrease in stability" if float(ddg) > 0.0 else "Increase in stability"
+    else:
+        return "Decrease in stability" if float(ddg) < 0.0 else "Increase in stability"

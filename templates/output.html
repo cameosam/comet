@@ -6,6 +6,7 @@
     border-collapse: collapse;
     width: 100%;
   }
+
   th,
   td {
     text-align: left;
@@ -21,9 +22,10 @@
     display: flex;
     position: relative;
   }
+
   button {
-    padding-top: 20px;
     position: absolute;
+    top: 10px; 
     right: 0;
   }
 </style>
@@ -33,6 +35,8 @@
     <div class id="title">
       <h1>Results</h1>
       <button onclick="javascript:window.history.back();">Go Back</button>
+      <!-- <button href="/home">Previous SNP</button> -->
+      <!-- <button href="/home">Next SNP</button> -->
     </div>
 
     <p>The selected SNP is {{snp}}</p>
@@ -55,6 +59,7 @@
       </tr>
       {% endfor %}
     </table>
+    
     <h3>Change in binding affinity (∆∆G)</h3>
     <p>Calculated with {{pdbselect}} and {{aa1}}</p>
     <table id="example" class="display" style="width:100%">
@@ -63,80 +68,70 @@
         <th>∆∆G (kcal/mol)</th>
         <th>Effect</th>
       </tr>
-      {% for i in range(0, len(ddgresults)) %}
+      {% for i in range(0, len(ddgresults)-1) %}
       <tr>
         <td>{{ddgresults[i][0]}}</td>
         <td>{{ddgresults[i][1]}}</td>
         <td>{{ddgresults[i][2]}}</td>
       </tr>
       {% endfor %}
+      <tr>
+        <th>{{ddgresults[len(ddgresults)-1][0]}}</th>
+        <th></th>
+        <th>{{ddgresults[len(ddgresults)-1][2]}}</th>
       </tr>
     </table>
     <p>* UEP only evaluates mutations located in highly-packed interface positions</p>
     <h3>Frequency</h3>
-    <!-- ript src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-        <div id="contain">
-          <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: right;">
-          <canvas id="chart1" width="30" height="20" style=" float:left;margin-left:2em"></canvas></div>
-          <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: right;">
-          <canvas id="chart2" width="30" height="20" style="float:left;margin-left:2em"></canvas></div>
-          </div>
-          
-        <script>
-          var fraction1 = parseFloat('{{ freq1000g[3:] }}')
-          var fraction2 = parseFloat('{{ freqhapmap[3:] }}')
-          var values1 = [ fraction1, 1-fraction1];
-          var values2 = [ fraction2, 1-fraction2];
-          var labels1 = ['{{ freq1000g[0] }}', "other"];
-          var labels2 = ['{{ freqhapmap[0] }}', "other"];
-          var colors = ["#F7464A", "#808080"];
-          var chart1 = new Chart(document.getElementById("chart1"), {
-              type: 'pie',
-              data: {
-                labels: labels1,
-                datasets: [{
-                  backgroundColor: colors,
-                  data: values1
-                }]
-              },
-              options: {
-                title: {
-                  display: true,
-                  text: '1000 Genomes Project'
-                }
-              }
-          });
-          var chart2 = new Chart(document.getElementById("chart2"), {
-              type: 'pie',
-              data: {
-                labels: labels2,
-                datasets: [{
-                  backgroundColor: colors,
-                  data: values2
-                }]
-              },
-              options: {
-                title: {
-                  display: true,
-                  text: 'HapMap Project'
-                }
-              }
-          });
-        </script> -->
-    <table>
-      <tr>
-        <th>Project</th>
-        <th>Frequency</th>
-      </tr>
-      <tr>
-        <td>1000 Genomes Project</td>
-        <td>{{freq1000g}}</td>
-      </tr>
-      <tr>
-        <td>HapMap Project</td>
-        <td>{{freqhapmap}}</td>
-      </tr>
-    </table>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+    
+    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: left;">
+      <canvas id="chart1" width="30" height="20" style="float:left;margin-left:2em;margin-bottom:2em"></canvas></div>
+    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: right;">
+      <canvas id="chart2" width="30" height="20" style="float:right;margin-right:2em;margin-bottom:2em"></canvas></div>
+
+    <script>
+      var fraction1 = parseFloat('{{ freq1000g[3:] }}')
+      var fraction2 = parseFloat('{{ freqhapmap[3:] }}')
+      var values1 = [fraction1, 1 - fraction1];
+      var values2 = [fraction2, 1 - fraction2];
+      var labels1 = ['{{ freq1000g[0] }}', "Other"];
+      var labels2 = ['{{ freqhapmap[0] }}', "Other"];
+      var colors = ["#232723", "#808080"];
+      var chart1 = new Chart(document.getElementById("chart1"), {
+        type: 'pie',
+        data: {
+          labels: labels1,
+          datasets: [{
+            backgroundColor: colors,
+            data: values1
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: '1000 Genomes Project'
+          }
+        }
+      });
+      var chart2 = new Chart(document.getElementById("chart2"), {
+        type: 'pie',
+        data: {
+          labels: labels2,
+          datasets: [{
+            backgroundColor: colors,
+            data: values2
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'HapMap Project'
+          }
+        }
+      });
+    </script>
+
     <h3>Clinical significance</h3>
     {% for item in clin %}
     <ul>

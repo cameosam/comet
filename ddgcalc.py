@@ -1,5 +1,5 @@
 import urllib.request
-from helperfun import subprocess_cmd, getsequence
+from helperfun import *
 import pandas as pd
 import os
 import requests as r
@@ -51,57 +51,64 @@ def ddgcalcs(pdb, aasub, gene):
     #saambe_eff = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
     #    python Mutation_pred.py -i tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 0').decode("utf-8")
     saambe_val = saambe_out.split("\n")[1]
-    if saambe_val:
-        saambe_eff = "Decrease in stability" if float(saambe_val) > 0.0 else "Increase in stability"
-    else:
-        saambe_val = saambe_eff = 'N/A'
+    saambe_eff = muteffect(saambe_val,True) if muteffect(saambe_val,True) else 'N/A'
+    # if saambe_val:
+    #     saambe_eff = "Decrease in stability" if float(saambe_val) > 0.0 else "Increase in stability"
+    # else:
+    #     saambe_val = saambe_eff = 'N/A'
 
     # imut2.0 struc calculation
     subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
         cd prediction/imutant;\
         ./mkdssp -i ../tmp/'+pdb+'.pdb -o ../tmp/'+pdb+'.dssp')
-    imut2_out1 = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+    imut2_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
         cd prediction/imutant;\
         python -O  I-Mutant2.0.py -pdbv ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
-    imut2_out2 = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
-         cd prediction/imutant;\
-        python -O  I-Mutant2.0.py -pdb ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
-    if "I-Mutant" in imut2_out1.decode("utf-8"):
-        imut2_val = (imut2_out1.decode("utf-8").split("RSA")
-                     [1].split("WT")[0]).split()[3]
-        imut2_eff = ((imut2_out2.decode("utf-8").split("RSA")
-                      [1].split("WT")[0]).split()[3])+' in stability'
-    else:
-        imut2_val = imut2_eff = 'N/A'
+    # imut2_out2 = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+    #      cd prediction/imutant;\
+    #     python -O  I-Mutant2.0.py -pdb ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
+    # if "I-Mutant" in imut2_out1.decode("utf-8"):
+    #     imut2_val = (imut2_out1.decode("utf-8").split("RSA")
+    #                  [1].split("WT")[0]).split()[3]
+    #     imut2_eff = ((imut2_out2.decode("utf-8").split("RSA")
+    #                   [1].split("WT")[0]).split()[3])+' in stability'
+    # else:
+    #     imut2_val = imut2_eff = 'N/A'
+    
+    imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
+    imut2_eff = muteffect(imut2_val,False) if muteffect(imut2_val,False) else 'N/A'
 
     # imut2.0 seq calculation
     sequence = getsequence(uniprotcode)
     with open("prediction/tmp/sequence.seq", "w") as text_file:
         text_file.write(sequence)
 
-    imut2_seq_out1 = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+    imut2_seq_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
         cd prediction/imutant;\
         python -O  I-Mutant2.0.py -seqv ../tmp/sequence.seq '+str(position)+' '+mutant)
-    imut2_seq_out2 = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
-        cd prediction/imutant;\
-        python -O  I-Mutant2.0.py -seq ../tmp/sequence.seq '+str(position)+' '+mutant)
-    if "I-Mutant" in imut2_seq_out1.decode("utf-8"):
-        imut2_seq_val = (imut2_seq_out1.decode("utf-8").split("pH    T")
+    # imut2_seq_out2 = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+    #     cd prediction/imutant;\
+    #     python -O  I-Mutant2.0.py -seq ../tmp/sequence.seq '+str(position)+' '+mutant)
+    if "I-Mutant" in imut2_seq_out.decode("utf-8"):
+        imut2_seq_val = (imut2_seq_out.decode("utf-8").split("pH    T")
                          [1].split("WT")[0]).split()[3]
-        imut2_seq_eff = ((imut2_seq_out2.decode("utf-8").split("pH    T")
-                          [1].split("WT")[0]).split()[3])+' in stability'
+        # imut2_seq_eff = ((imut2_seq_out2.decode("utf-8").split("pH    T")
+        #                   [1].split("WT")[0]).split()[3])+' in stability'
     else:
         imut2_seq_val = imut2_seq_eff = 'N/A'
+    # imut2_seq_val = (imut2_seq_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_seq_out.decode("utf-8") else 'N/A'
+    imut2_seq_eff = muteffect(imut2_seq_val,False) if muteffect(imut2_seq_val,False) else 'N/A'
 
     # UEP calculation
     os.system('cd prediction/uep; python3 UEP.py --pdb=../tmp/'+pdb +'.pdb --interface='+chain+','+secondchain)
     uep_out = pd.read_csv('prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv')
     location = uep_out.loc[uep_out['Unnamed: 0'] == chain+'_' + str(position - shift)+'_'+aasub[:3].upper(), aasub[-3:].upper()]
     uep_val = "N/A" if location.empty else location.values[0]
-    if uep_val != "N/A":
-        uep_eff = "Improved binding affinity" if float(uep_val) < 0 else "Improved binding affinity" 
-    else:
-        uep_val = uep_eff = "N/A"
+    # if uep_val != "N/A":
+    #     uep_eff = "Improved binding affinity" if float(uep_val) < 0 else "Improved binding affinity" 
+    # else:
+    #     uep_eff = "N/A"
+    uep_eff = muteffect(uep_val,True) if uep_val != "N/A" and muteffect(uep_val,True) else 'N/A'
 
     # panda calculation
     secondseq = "'" + getsequence(secounduniprotcode) + "'"
@@ -111,10 +118,16 @@ def ddgcalcs(pdb, aasub, gene):
     panda_output = subprocess_cmd('cd prediction/panda;\
         (echo "from panda import *"; echo "print(predict_affinity('+secondseq+','+sequence+','+secondseq+','+mutseq+'))") | python')
     panda_val = panda_output.decode("utf-8")[1:-1]
-    if panda_val:
-        panda_eff = "Increasing affinity" if float(panda_val) > 0.0 else "Decreasing affinity"
-    else:
-        panda_val = panda_eff = 'N/A'
+    # if panda_val:
+    #     panda_eff = "Increase in affinity" if float(panda_val) > 0.0 else "Decrease in affinity"
+    # else:
+    #     panda_val = panda_eff = 'N/A'
+    panda_eff = muteffect(panda_val,False) if muteffect(panda_val,False) else 'N/A'
+
+    # Consensus
+    increase = len(list(filter(lambda x: x == "Increase in stability", [saambe_eff, imut2_eff, imut2_seq_eff, panda_eff, uep_eff])))
+    decrease = len(list(filter(lambda x: x == "Decrease in stability", [saambe_eff, imut2_eff, imut2_seq_eff, panda_eff, uep_eff])))
+    consensus = "Increase in stability" if increase > decrease else "Decrease in stability"
 
     # get rid of files
     os.remove('prediction/tmp/'+pdb+'.pdb')
@@ -122,4 +135,4 @@ def ddgcalcs(pdb, aasub, gene):
     os.remove('prediction/tmp/sequence.seq')
     os.remove('prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv')
 
-    return [["SAAMBE-3D",saambe_val, saambe_eff], ["I-Mutant2.0 Structure", imut2_val, imut2_eff], ["I-Mutant2.0 Sequence",imut2_seq_val, imut2_seq_eff], ["PANDA", panda_val, panda_eff], ["UEP",uep_val, uep_eff]], chain
+    return [["SAAMBE-3D",saambe_val, saambe_eff], ["I-Mutant2.0 Structure", imut2_val, imut2_eff], ["I-Mutant2.0 Sequence",imut2_seq_val, imut2_seq_eff], ["PANDA", panda_val, panda_eff], ["UEP",uep_val, uep_eff],["Stability Consensus","",consensus]], chain
