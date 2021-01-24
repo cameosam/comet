@@ -25,41 +25,127 @@
 
   button {
     position: absolute;
-    top: 10px; 
+    top: 10px;
     right: 0;
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
 <body>
   <div class="container">
     <div class id="title">
-      <h1>Results</h1>
+      <h1>{{snp}}</h1>
       <button onclick="javascript:window.history.back();">Go Back</button>
       <!-- <button href="/home">Previous SNP</button> -->
       <!-- <button href="/home">Next SNP</button> -->
     </div>
+    <p>Gene: {{gene}}</p>
+    <P>Chromosome: {{chr}}</P>
+    <p>Genotype: {{genotype}}</p>
+    <h3>Substitutions and Frequencies</h3>
 
-    <p>The selected SNP is {{snp}}</p>
-    <p>The corresponding gene is {{gene}} located on Chromosome {{chr}}</p>
-    <p>Your genotype is {{genotype}}</p>
-    <h3>Substitutions</h3>
-    <table>
-      <tr>
-        <th>Nucleotide </th>
-        <th>Nucleotide documentation count</th>
-        <th>Amino acid</th>
-        <th>Amino acid documentation count</th>
-      </tr>
-      {% for i in range(len(subs[0])) %}
-      <tr>
-        <td>{{subs[0][i][0]}}</td>
-        <td>{{subs[0][i][1]}}</td>
-        <td>{{subs[1][i][0]}}</td>
-        <td>{{subs[1][i][1]}}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    
+    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: left;">
+      <canvas id="chart1" width="20" height="10" style="float:left;margin-left:2em;margin-bottom:2em"></canvas></div>
+    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: right;">
+      <canvas id="chart2" width="20" height="10" style="float:right;margin-right:2em;margin-bottom:2em"></canvas></div>
+
+    <script>
+      var nuc_num = '{{subs[1]| tojson}}'.slice(1,-1).split(', ');
+      var nuc_label = '{{subs[0]| tojson}}'.slice(1,-1).split(', ');
+      
+      var colors = ["#351f39", "#726a95", "#719fb0", "#a0c1b8"];
+      var chart1 = new Chart(document.getElementById("chart1"), {
+        type: 'polarArea',
+        data: {
+          labels: nuc_label,
+          datasets: [{
+            backgroundColor: colors,
+            data: nuc_num
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'Nucleotide Substitutions'
+          },
+          legend: {
+            position: 'left'
+          }
+        }
+      });
+      var aa_num = '{{subs[3]| tojson}}'.slice(1,-1).split(', ');
+      var aa_label = '{{subs[2]| tojson}}'.slice(1,-1).split(', ');
+      
+      var chart2 = new Chart(document.getElementById("chart2"), {
+        type: 'polarArea',
+        data: {
+          labels: aa_label,
+          datasets: [{
+            backgroundColor: colors,
+            data: aa_num
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'Amino acid Substitutions'
+          },
+          legend: {
+            position: 'right'
+          }
+        }
+      });
+    </script>
+    <div style="background-color:#FFFFFF;width:50%;float: left;">
+      <canvas id="pie1" width="20" height="10" style="float:left;margin-left:2em;margin-bottom:2em"></canvas></div>
+    <div style="background-color:#FFFFFF;width:50%;float: right;">
+      <canvas id="pie2" width="20" height="10" style="float:right;margin-right:2em;margin-bottom:2em"></canvas></div>
+
+    <script>
+      var fraction1 = parseFloat('{{ freq1000g[3:] }}')
+      var fraction2 = parseFloat('{{ freqhapmap[3:] }}')
+      var colors = ['#8b5e83','#d6b0b1'];
+      var pie1 = new Chart(document.getElementById("pie1"), {
+        type: 'pie',
+        data: {
+          labels: ['{{ freq1000g[0] }}', "Other"],
+          datasets: [{
+            backgroundColor: colors,
+            data: [fraction1, 1 - fraction1]
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: '1000 Genomes Project'
+          },
+          legend: {
+            position: 'left'
+          }
+        }
+      });
+      var pie2 = new Chart(document.getElementById("pie2"), {
+        type: 'pie',
+        data: {
+          labels: ['{{ freqhapmap[0] }}', "Other"],
+          datasets: [{
+            backgroundColor: colors,
+            data: [fraction2, 1 - fraction2]
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'HapMap Project'
+          },
+          legend: {
+            position: 'right'
+          }
+        }
+      });
+    </script>
+  
+
     <h3>Change in binding affinity (∆∆G)</h3>
     <p>Calculated with {{pdbselect}} and {{aa1}}</p>
     <table id="example" class="display" style="width:100%">
@@ -82,55 +168,9 @@
       </tr>
     </table>
     <p>* UEP only evaluates mutations located in highly-packed interface positions</p>
-    <h3>Frequency</h3>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-    
-    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: left;">
-      <canvas id="chart1" width="30" height="20" style="float:left;margin-left:2em;margin-bottom:2em"></canvas></div>
-    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: right;">
-      <canvas id="chart2" width="30" height="20" style="float:right;margin-right:2em;margin-bottom:2em"></canvas></div>
+  
 
-    <script>
-      var fraction1 = parseFloat('{{ freq1000g[3:] }}')
-      var fraction2 = parseFloat('{{ freqhapmap[3:] }}')
-      var values1 = [fraction1, 1 - fraction1];
-      var values2 = [fraction2, 1 - fraction2];
-      var labels1 = ['{{ freq1000g[0] }}', "Other"];
-      var labels2 = ['{{ freqhapmap[0] }}', "Other"];
-      var colors = ["#232723", "#808080"];
-      var chart1 = new Chart(document.getElementById("chart1"), {
-        type: 'pie',
-        data: {
-          labels: labels1,
-          datasets: [{
-            backgroundColor: colors,
-            data: values1
-          }]
-        },
-        options: {
-          title: {
-            display: true,
-            text: '1000 Genomes Project'
-          }
-        }
-      });
-      var chart2 = new Chart(document.getElementById("chart2"), {
-        type: 'pie',
-        data: {
-          labels: labels2,
-          datasets: [{
-            backgroundColor: colors,
-            data: values2
-          }]
-        },
-        options: {
-          title: {
-            display: true,
-            text: 'HapMap Project'
-          }
-        }
-      });
-    </script>
+    
 
     <h3>Clinical significance</h3>
     {% for item in clin %}

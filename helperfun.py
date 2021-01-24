@@ -75,20 +75,6 @@ def findpdb(gene):
     else:
         return "N/A"
 
-# def pdbfilter(pdbs, gene):
-#     filteredpdb = []
-#     print(pdbs)
-#     for pdb in pdbs:
-#         print(pdb)
-#         urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')
-#         for line in open('prediction/tmp/'+pdb+'.pdb'):
-#             listval = line.split()
-#             if listval[0] == 'DBREF':
-#                 if gene in listval[7] or gene in listval[6]:
-#                     filteredpdb.append(pdb)
-#         os.remove('prediction/tmp/'+pdb+'.pdb')
-#     return filteredpdb
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'txt'
 
@@ -121,13 +107,14 @@ def getsnpinfo(rsid):
     if aacount:
         sorted_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
         sorted_aalist = sorted(list(zip(aalist, aacount)),key=lambda x: (x[1]), reverse=True)
-        subs = [sorted_nuclist, sorted_aalist]
+        
+        subs = [[i[0] for i in sorted_nuclist],[i[1] for i in sorted_nuclist], [i[0] for i in sorted_aalist],[i[1] for i in sorted_aalist]]
     else:
         sorted_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
         subs = [sorted_nuclist]
-    #subs = sorted(list(zip(nuclist, nuccount, aalist, aacount)),key=lambda x: (x[1]), reverse=True) if aacount else sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
     first_aa = sorted_aalist[0][0] if aacount else 'N/A'
     print(subs)
+    
     # minor allele frequency
     maf = record['GLOBAL_MAFS']
     freq_kg = 'N/A'

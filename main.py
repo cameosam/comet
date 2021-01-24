@@ -93,7 +93,6 @@ def output():
         genotype = session["genotype"]
         gene_name, chromosome, freq_kg, freq_hm, clinical, subs, first_aa = getsnpinfo(rsid) 
         pdbs = findpdb(gene_name)
-        # pdbs = pdbfilter(pdbs_all, gene_name)
 
         # calculate ddg
         if pdbs != "N/A":
@@ -117,7 +116,6 @@ def output():
                                zip=zip, len=len)
     else:
         return redirect(url_for("select"))
-
 
 if __name__ == "__main__":
     app.run(debug=True)
