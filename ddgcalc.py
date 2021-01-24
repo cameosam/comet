@@ -14,8 +14,11 @@ def ddgcalcs(pdb, aasub, gene):
     wild = aminoacids.get(aasub[:3])
     mutant = aminoacids.get(aasub[-3:])
     position = int(aasub[3:-3])
+
     # retrieve pdb file
     urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')
+
+    uniprotcode = get_uniprot_code(gene)
 
     # read pdb file to determine where mutation is on the pdb (chain and nucleotide number)
     dbref = []
@@ -33,30 +36,31 @@ def ddgcalcs(pdb, aasub, gene):
                 dbref.append([listval[2], listval[5], listval[6], listval[7]])
     for mol in dbref:
         if len(mol) == 5:
-            if gene in mol[3]:
+            if gene in mol[3] or uniprotcode in mol[2]:
                 shift = int(mol[4]) - int(mol[1])
                 chain = mol[0]
                 uniprotcode = mol[2]
             else:
                 secondchain = mol[0]
                 secounduniprotcode = mol[2]
-        elif len(mol) < 5 and gene in mol[2]:
+        elif len(mol) < 5 and (gene in mol[2] or uniprotcode in mol[1]):
             shift = int(mol[3]) - int(mol[0])
             uniprotcode = mol[1]
-
+            
     # SAAMBE-3D calculation
     saambe_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
         cd prediction/saambe;\
         python Mutation_pred.py -i ../tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 1').decode("utf-8")
     #saambe_eff = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
     #    python Mutation_pred.py -i tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 0').decode("utf-8")
-    saambe_val = saambe_out.split("\n")[1]
-    saambe_eff = muteffect(saambe_val,True) if muteffect(saambe_val,True) else 'N/A'
+    #saambe_val = saambe_out.split("\n")[1]
+    saambe_val = saambe_out.split("\n")[1] if "\n" in saambe_out else 'N/A'
+    saambe_eff = muteffect(saambe_val,True) if saambe_val != 'N/A' and muteffect(saambe_val,True) else 'N/A'
     # if saambe_val:
     #     saambe_eff = "Decrease in stability" if float(saambe_val) > 0.0 else "Increase in stability"
     # else:
     #     saambe_val = saambe_eff = 'N/A'
-
+ 
     # imut2.0 struc calculation
     subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
         cd prediction/imutant;\
@@ -74,9 +78,8 @@ def ddgcalcs(pdb, aasub, gene):
     #                   [1].split("WT")[0]).split()[3])+' in stability'
     # else:
     #     imut2_val = imut2_eff = 'N/A'
-    
     imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
-    imut2_eff = muteffect(imut2_val,False) if muteffect(imut2_val,False) else 'N/A'
+    imut2_eff = muteffect(imut2_val,False) if imut2_val != 'N/A' and muteffect(imut2_val,False) else 'N/A'
 
     # imut2.0 seq calculation
     sequence = getsequence(uniprotcode)
@@ -95,9 +98,9 @@ def ddgcalcs(pdb, aasub, gene):
         # imut2_seq_eff = ((imut2_seq_out2.decode("utf-8").split("pH    T")
         #                   [1].split("WT")[0]).split()[3])+' in stability'
     else:
-        imut2_seq_val = imut2_seq_eff = 'N/A'
+        imut2_seq_val ='N/A'
     # imut2_seq_val = (imut2_seq_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_seq_out.decode("utf-8") else 'N/A'
-    imut2_seq_eff = muteffect(imut2_seq_val,False) if muteffect(imut2_seq_val,False) else 'N/A'
+    imut2_seq_eff = muteffect(imut2_seq_val,False) if  imut2_seq_val != 'N/A' and muteffect(imut2_seq_val,False) else 'N/A'
 
     # UEP calculation
     os.system('cd prediction/uep; python3 UEP.py --pdb=../tmp/'+pdb +'.pdb --interface='+chain+','+secondchain)
@@ -122,7 +125,7 @@ def ddgcalcs(pdb, aasub, gene):
     #     panda_eff = "Increase in affinity" if float(panda_val) > 0.0 else "Decrease in affinity"
     # else:
     #     panda_val = panda_eff = 'N/A'
-    panda_eff = muteffect(panda_val,False) if muteffect(panda_val,False) else 'N/A'
+    panda_eff = muteffect(panda_val,False) if panda_val != 'N/A' and muteffect(panda_val,False) else 'N/A'
 
     # Consensus
     increase = len(list(filter(lambda x: x == "Increase in stability", [saambe_eff, imut2_eff, imut2_seq_eff, panda_eff, uep_eff])))

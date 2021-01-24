@@ -5,6 +5,8 @@ import mmap
 import re
 from Bio import Entrez, SeqIO
 import json
+import os
+import urllib.request
 import requests
 from io import StringIO
 
@@ -25,7 +27,12 @@ def parsefile(filename, chrom):
     return rslist
 
 def findpdb(gene):
-    params = {"query": {"type": "group", "logical_operator": "and", "nodes": [
+    params = {
+        "query": 
+        {
+            "type": "group", 
+            "logical_operator": "and", 
+            "nodes": [
         {
             "type": "terminal",
             "service": "text",
@@ -68,6 +75,20 @@ def findpdb(gene):
     else:
         return "N/A"
 
+# def pdbfilter(pdbs, gene):
+#     filteredpdb = []
+#     print(pdbs)
+#     for pdb in pdbs:
+#         print(pdb)
+#         urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')
+#         for line in open('prediction/tmp/'+pdb+'.pdb'):
+#             listval = line.split()
+#             if listval[0] == 'DBREF':
+#                 if gene in listval[7] or gene in listval[6]:
+#                     filteredpdb.append(pdb)
+#         os.remove('prediction/tmp/'+pdb+'.pdb')
+#     return filteredpdb
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'txt'
 
@@ -97,9 +118,16 @@ def getsnpinfo(rsid):
         nuccount.append(docsum.count(i))
     for i in aalist:
         aacount.append(docsum.count(i))
-    subs = sorted(list(zip(nuclist, nuccount, aalist, aacount)),key=lambda x: (x[1]), reverse=True) if aacount else sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
-    first_aa = subs[0][2] if aacount else 'N/A'
-
+    if aacount:
+        sorted_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
+        sorted_aalist = sorted(list(zip(aalist, aacount)),key=lambda x: (x[1]), reverse=True)
+        subs = [sorted_nuclist, sorted_aalist]
+    else:
+        sorted_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
+        subs = [sorted_nuclist]
+    #subs = sorted(list(zip(nuclist, nuccount, aalist, aacount)),key=lambda x: (x[1]), reverse=True) if aacount else sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
+    first_aa = sorted_aalist[0][0] if aacount else 'N/A'
+    print(subs)
     # minor allele frequency
     maf = record['GLOBAL_MAFS']
     freq_kg = 'N/A'
@@ -120,6 +148,13 @@ def getsequence(uniprotcode):
     Seq = StringIO(cData)
     pSeq = list(SeqIO.parse(Seq, 'fasta'))
     return str(pSeq[0].seq)
+
+def get_uniprot_code(gene):
+    baseUrl = "http://www.uniprot.org/uniprot/"
+    query = "?query=reviewed:yes+AND+gene_exact:"+gene+"+organism:9606&format=list"
+    currentUrl = baseUrl+query
+    response = requests.post(currentUrl)
+    return response.text.split("\n")[0]
 
 def muteffect(ddg, posdes):
     if posdes == True:

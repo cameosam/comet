@@ -8,7 +8,7 @@ import pandas as pd
 # from flask_session import Session
 # from datetime import timedelta
 
-from helperfun import findpdb, parsefile, allowed_file, getsnpinfo
+from helperfun import *
 from ddgcalc import ddgcalcs
 
 app = Flask(__name__)
@@ -35,7 +35,7 @@ def html_page(page_name):
 def endsession():
     if session["file"]:
         os.remove('uploads/'+session["file"])
-    for key in session.keys():
+    for key in ['chrom', 'file', 'genotype', 'output', 'rsid']:
         session.pop(key)
     flash('Thanks for using COMET. All session data has been deleted')
     return redirect(url_for('index'))
@@ -93,6 +93,7 @@ def output():
         genotype = session["genotype"]
         gene_name, chromosome, freq_kg, freq_hm, clinical, subs, first_aa = getsnpinfo(rsid) 
         pdbs = findpdb(gene_name)
+        # pdbs = pdbfilter(pdbs_all, gene_name)
 
         # calculate ddg
         if pdbs != "N/A":
