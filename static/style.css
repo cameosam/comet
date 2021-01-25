@@ -1,15 +1,55 @@
+/**TAG SELECTORS**/
+h3,
+h2,
+h1 {
+    padding: 20px 20px 20px 0;
+}
+
 p {
     margin-bottom: 5px;
     padding-bottom: 10px;
 }
-h1 {
-    padding-top: 20px;
-    padding-bottom: 10px;
-}
-h3,
-h2 {
-    padding-top: 20px;
-}
+
 body {
     padding-bottom: 100px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 8px;
+}
+
+/**CLASS SELECTORS**/
+.snp-info {
+    padding: 10px;
+    margin: 10px;
+    border-style: solid;
+    border-color:lightgrey;
+}
+.result-titles {
+    background-color: lightgrey;
+    padding: 10px;
+    margin: 10px 10px 10px 0;
+}
+.nav-btn {
+    position: absolute;
+    top: 25px;
+    right: 0;
+}
+
+/**ID SELECTORS**/
+#chromosomes {
+    padding: 20px;
+    padding-bottom: 40px;
+    text-align: center;
+}
+#title {
+    display: flex;
+    position: relative;
 }

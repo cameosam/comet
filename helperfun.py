@@ -105,16 +105,19 @@ def getsnpinfo(rsid):
     for i in aalist:
         aacount.append(docsum.count(i))
     if aacount:
-        sorted_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
-        sorted_aalist = sorted(list(zip(aalist, aacount)),key=lambda x: (x[1]), reverse=True)
-        
-        subs = [[i[0] for i in sorted_nuclist],[i[1] for i in sorted_nuclist], [i[0] for i in sorted_aalist],[i[1] for i in sorted_aalist]]
+        zipped_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
+        zipped_aalist = sorted(list(zip(aalist, aacount)),key=lambda x: (x[1]), reverse=True)
+        first_aa = zipped_aalist[0][0]
+        sorted_nuclist = [[i[0] for i in zipped_nuclist],[i[1] for i in zipped_nuclist]]
+        sorted_aalist = [[i[0] for i in zipped_aalist],[i[1] for i in zipped_aalist]]
+
+        # subs = [[i[0] for i in sorted_nuclist],[i[1] for i in sorted_nuclist], [i[0] for i in sorted_aalist],[i[1] for i in sorted_aalist]]
     else:
-        sorted_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
-        subs = [sorted_nuclist]
-    first_aa = sorted_aalist[0][0] if aacount else 'N/A'
-    print(subs)
-    
+        zipped_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
+        sorted_nuclist = [[i[0] for i in zipped_nuclist],[i[1] for i in zipped_nuclist]]
+        sorted_aalist = first_aa = 'N/A'
+
+
     # minor allele frequency
     maf = record['GLOBAL_MAFS']
     freq_kg = 'N/A'
@@ -125,7 +128,7 @@ def getsnpinfo(rsid):
         if 'HapMap' in study.values():
             freq_hm = study['FREQ'].partition("/")[0]
 
-    return gene_name, chromosome, freq_kg, freq_hm, clinical.split(","), subs, first_aa
+    return gene_name, chromosome, freq_kg, freq_hm, clinical.split(","), sorted_nuclist, sorted_aalist, first_aa
 
 def getsequence(uniprotcode):
     baseUrl = "http://www.uniprot.org/uniprot/"

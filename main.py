@@ -27,9 +27,9 @@ app.config['UPLOAD_FOLDER'] = './uploads/'
 def index():
     return render_template("index.html")
 
-@app.route("/<string:page_name>")
-def html_page(page_name):
-    return render_template(page_name)
+# @app.route("/<string:page_name>")
+# def html_page(page_name):
+#     return render_template(page_name)
 
 @app.route("/endsession")
 def endsession():
@@ -70,6 +70,28 @@ def index_get_data():
     jsontable = json.loads(datatable)
     return jsonify(jsontable)
 
+@app.route('/nextsnp')
+def next_snp():
+    curr_snp = session["rsid"]
+    filename = session["file"]
+    chrom = session["chrom"]
+    rslist = parsefile(filename, chrom)
+    curr_index = [index for index, row in enumerate(rslist) if curr_snp in row]
+    session["rsid"] = rslist[curr_index[0]+1][0]
+    session["genotype"] = rslist[curr_index[0]+1][3]
+    return redirect(url_for("output"))
+
+@app.route('/prevsnp')
+def prev_snp():
+    curr_snp = session["rsid"]
+    filename = session["file"]
+    chrom = session["chrom"]
+    rslist = parsefile(filename, chrom)
+    curr_index = [index for index, row in enumerate(rslist) if curr_snp in row]
+    session["rsid"] = rslist[curr_index[0]-1][0]
+    session["genotype"] = rslist[curr_index[0]-1][3]
+    return redirect(url_for("output"))
+
 @app.route("/getchoice", methods=["POST"])
 def testid():
     if request.method == "POST":
@@ -80,42 +102,50 @@ def testid():
 @app.route("/output", methods=["POST", "GET"])
 def output():
     if request.method == "POST":
-        if 'pdbselect' in request.form:
-            pdbselect = request.form['pdbselect']
-            rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, ddgresults, freq_kg, freq_hm, clinical, subs, chain = session[
+        rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist = session[
                 "output"]
+        if 'ddgcalc' in request.form:
+            if request.form['ddgcalc'] == 'mutated':
+                if first_aa != "N/A":
+                    ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, True)
+                else:
+                    chain = "*"
+                    ddgresults = [["N/A" for i in range(2)] for j in range(4)]
+                return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len)
+            else:
+                if first_aa != "N/A":
+                    ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, False)    
+                else:
+                    chain = "*"
+                    ddgresults = [["N/A" for i in range(2)] for j in range(4)]
+                return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len) 
+        elif 'pdbselect' in request.form:
+            pdbselect = request.form['pdbselect']
             if first_aa != "N/A":
-                ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name)
-            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, subs=subs, chain=chain, zip=zip, len=len)
-
+                ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name, True)
+            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len)
+        
     if "rsid" in session:
         rsid = session["rsid"]
         genotype = session["genotype"]
-        gene_name, chromosome, freq_kg, freq_hm, clinical, subs, first_aa = getsnpinfo(rsid) 
+        gene_name, chromosome, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, first_aa = getsnpinfo(rsid) 
         pdbs = findpdb(gene_name)
 
-        # calculate ddg
         if pdbs != "N/A":
             first_pdb = pdbs[0] if len(pdbs) > 1 else pdbs
-            if first_aa != "N/A":
-                ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name)
-            else:
-                chain = "*"
-                ddgresults = [["N/A" for i in range(2)] for j in range(4)]
         else:
             first_pdb = "N/A"
 
-        session["output"] = [rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, ddgresults, freq_kg, freq_hm, clinical, subs, chain]
+        session["output"] = [rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist]
  
-        print(session["output"])
         return render_template("output.html", snp=rsid, genotype= genotype,gene=gene_name,
                                chr=chromosome, pdb=pdbs, pdbselect=first_pdb,
-                               aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg,
+                               aa1=first_aa, freq1000g=freq_kg,
                                freqhapmap=freq_hm, clin=clinical,
-                               subs=subs, chain=chain,
+                               sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain = "*",
                                zip=zip, len=len)
     else:
-        return redirect(url_for("select"))
+        return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True)
