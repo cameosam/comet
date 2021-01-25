@@ -1,21 +1,14 @@
 {% extends "base.html" %} {% block title %} COMET Home{% endblock %} {% block content
     %}
-<style>
-  .center {
-    text-align: center;
-  }
-</style>
+
+<div class="jumbotron">
+  <h1>COMET: COmparative Mutation Effect Tool</h1>
+  <p class="lead">Analyzing SNPs through protein-protein interactions.</p>
+  <input type="button" class="btn btn-outline-dark btn-lg" onClick="location.href='/input'" value="Start Analysis" />
+</div>
 
 <div class="container">
-  <hr />
-  <div class="center">
-    <h1>COMET: COmparative Mutation Effect Tool</h1>
-    <p>Analyzing SNPs through protein-protein interactions.</p>
-    <input type="button" class="btn btn-outline-dark btn-lg" onClick="location.href='/input'" value="Start Analysis" />
-  </div>
-  <hr />
-
-  <h2>∆∆G predictors</h2>
+  <h2><u>∆∆G Predictors</u></h2>
   <h3>SAAMBE 3D</h3>
   <p>
     Pahari, S., Li, G., Murthy, A. K., Liang, S., Fragoza, R., Yu, H., & Alexov,
@@ -32,7 +25,8 @@
   <a href="https://folding.biofold.org/i-mutant/i-mutant2.0.html">I-Mutant2.0 Website</a>
   <h3>PANDA</h3>
   <p>
-    Wang, Z., Zhao, C., Wang, Y., Sun, Z., and Wang, N. (2018) PANDA: Protein Function Prediction using Domain Architecture and Affinity Propagation. Scientific Reports, 8, doi:10.1038/s41598-018-21849-1.
+    Wang, Z., Zhao, C., Wang, Y., Sun, Z., and Wang, N. (2018) PANDA: Protein Function Prediction using Domain
+    Architecture and Affinity Propagation. Scientific Reports, 8, doi:10.1038/s41598-018-21849-1.
   </p>
   <a href="http://dna.cs.miami.edu/PANDA/">UEP GitHub</a>
   <h3>UEP</h3>

@@ -42,6 +42,16 @@ td {
     top: 25px;
     right: 0;
 }
+.flashes {
+    list-style-type:none;
+    text-align:center;
+    margin-top: 20px;
+} 
+.jumbotron {
+    background-color: GhostWhite;
+    text-align: center;
+    padding:80px;
+}
 
 /**ID SELECTORS**/
 #chromosomes {

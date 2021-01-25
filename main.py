@@ -5,39 +5,30 @@ import itertools
 import os
 import json
 import pandas as pd
-# from flask_session import Session
-# from datetime import timedelta
-
 from helperfun import *
 from ddgcalc import ddgcalcs
 
 app = Flask(__name__)
-app.secret_key = "secret"
+app.secret_key = "secret_key"
 app.config['UPLOAD_FOLDER'] = './uploads/'
-# app.config['SESSION_PERMANENT'] = True
-# app.config['SESSION_TYPE'] = 'filesystem'
-# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
-# app.config['SESSION_FILE_THRESHOLD'] = 100 
-# app.config['SECRET_KEY'] = app.secret_key
-# sess = Session()
-# sess.init_app(app)
 
 @app.route("/")
 @app.route("/home")
 def index():
     return render_template("index.html")
 
-# @app.route("/<string:page_name>")
-# def html_page(page_name):
-#     return render_template(page_name)
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 @app.route("/endsession")
 def endsession():
-    if session["file"]:
+    if session.get("file") != None:
         os.remove('uploads/'+session["file"])
-    for key in ['chrom', 'file', 'genotype', 'output', 'rsid']:
-        session.pop(key)
-    flash('Thanks for using COMET. All session data has been deleted')
+        [session.pop(key) for key in list(session.keys())]
+        flash('Thanks for using COMET. All session data has been deleted.')
+    else:
+        flash('Nothing to be deleted!')
     return redirect(url_for('index'))
 
 @app.route("/input", methods=["POST", "GET"])
@@ -74,7 +65,7 @@ def index_get_data():
 def next_snp():
     curr_snp = session["rsid"]
     filename = session["file"]
-    chrom = session["chrom"]
+    chrom = session["chrom"] if session.get("chrom") != None else str(1)
     rslist = parsefile(filename, chrom)
     curr_index = [index for index, row in enumerate(rslist) if curr_snp in row]
     session["rsid"] = rslist[curr_index[0]+1][0]
