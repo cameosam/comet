@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}Input{% endblock %} {% block content
+{% extends "base.html" %} {% block title %}Select SNP{% endblock %} {% block content
     %}
 
 <head>
@@ -8,71 +8,72 @@
 </head>
 
 <div class="container">
-    <h3>Step 2: Select a SNP analyze (filter by chromosome)</h3>
+    <h1>Step 2: Select a SNP analyze (filter by chromosome)</h3>
+        <p>Click the Analyze button of the SNP you are interested in.</p>
 
-    <div id="chromosomes">
-        <form action="#" method="post">
-            {% for i in (list(range(1, 23)) + list(['X', 'Y'])) %}
-            <input type="submit" name="chrom" value={{i}}>
-            {% endfor %}
-        </form>
-    </div>
+        <div id="chromosomes">
+            <form action="#" method="post">
+                {% for i in (list(range(1, 23)) + list(['X', 'Y'])) %}
+                <input type="submit" name="chrom" value={{i}}>
+                {% endfor %}
+            </form>
+        </div>
 
-    <table id="example" class="display" style="width:100%">
-        <thead>
-            <tr>
-                <th>rsid</th>
-                <th>chromosome</th>
-                <th>position</th>
-                <th>genotype</th>
-                <th>action</th>
-            </tr>
-        </thead>
-    </table>
+        <table id="example" class="display">
+            <thead>
+                <tr>
+                    <th>rsid</th>
+                    <th>chromosome</th>
+                    <th>position</th>
+                    <th>genotype</th>
+                    <th>action</th>
+                </tr>
+            </thead>
+        </table>
 
-    <script>
-        $(document).ready(function () {
-            var table = $('#example').DataTable({
-                "ajax": {
-                    "url": "/showtable",
-                    "dataType": "json",
-                    "dataSrc": "data",
-                    "contentType": "application/json",
-                    "datatesting": "hello"
-                },
-                "columns": [{
-                        "data": "rsid"
+        <script>
+            $(document).ready(function () {
+                var table = $('#example').DataTable({
+                    "ajax": {
+                        "url": "/showtable",
+                        "dataType": "json",
+                        "dataSrc": "data",
+                        "contentType": "application/json",
+                        "datatesting": "hello"
                     },
-                    {
-                        "data": "chromosome"
-                    },
-                    {
-                        "data": "position"
-                    },
-                    {
-                        "data": "genotype"
-                    },
-                    {
-                        "data": null
-                    }
+                    "columns": [{
+                            "data": "rsid"
+                        },
+                        {
+                            "data": "chromosome"
+                        },
+                        {
+                            "data": "position"
+                        },
+                        {
+                            "data": "genotype"
+                        },
+                        {
+                            "data": null
+                        }
 
-                ],
-                "columnDefs": [{
-                    "targets": -1,
-                    "defaultContent": "<button type='submit'>Analyze</button>"
-                }]
+                    ],
+                    "columnDefs": [{
+                        "targets": -1,
+                        "defaultContent": "<button type='submit'>Analyze</button>"
+                    }]
+
+                });
+                $('#example tbody').on('click', 'button', function () {
+                    var data = table.row($(this).parents('tr')).data();
+                    $.post(`/getchoice?rsid=${data["rsid"]}&genotype=${data["genotype"]}`)
+                        .done(() => {
+                            window.location.replace("http://127.0.0.1:5000/output");
+                        });
+                });
 
             });
-            $('#example tbody').on('click', 'button', function () {
-                var data = table.row($(this).parents('tr')).data();
-                $.post(`/getchoice?rsid=${data["rsid"]}&genotype=${data["genotype"]}`)
-                    .done(() => {
-                        window.location.replace("http://127.0.0.1:5000/output");
-                    });
-            });
-
-        });
-    </script>
+        </script>
 
 </div>
 {% endblock %}

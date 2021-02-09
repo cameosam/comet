@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}Results{% endblock %} {% block
+{% extends "base.html" %} {% block title %}{{snp}} Results{% endblock %} {% block
     content %}
 
 <head>
@@ -11,14 +11,27 @@
 
 <body>
   <div class="container">
-    <div class id="title">
-      <h1>{{snp}}</h1>
-      <div class="nav-btn" role="group" aria-label="Basic example">
-        <a class="btn btn-secondary" href="/select">Back to table</a>
-        <a class="btn btn-secondary" href="/prevsnp">Previous SNP</a>
-        <a class="btn btn-secondary" href="/nextsnp">Next SNP</a>
-      </div>
+    <!-- <div class id="title"> -->
+      <div class="row">
+        <div class="col">
+          <h1>{{snp}} Results</h1>
+          <div role="group" aria-label="Navigation buttons">
+            <a class="btn btn-secondary jumpto" href="/select">Back to table</a>
+            <a class="btn btn-secondary jumpto" href="/prevsnp">Previous SNP</a>
+            <a class="btn btn-secondary jumpto" href="/nextsnp">Next SNP</a>
+          </div>
+        </div>
+        <div class="col jumpto">
+          <p></p>
+          <p>Jump to:</p>
+          <p><a href="#sub-freq">Substitutions and frequencies</a></p>
+          <p><a href="#bind-affinity">Change in binding affinity (∆∆G)</a></p>
+          <p><a href="#protein-viewer">Protein viewer</a></p>
+        </div>
+
     </div>
+    
+    <p></p>
     <div class="row">
       <div class="col-sm snp-info">
         <p>Gene: {{gene}}</p>
@@ -35,20 +48,45 @@
       </div>
     </div>
 
-    <h3 class="result-titles">Substitutions and frequencies</h3>
-    <p>There can be multiple amino acid subsitutions and/or nucleotide subsitutions for a given SNP.</p>
+    <h3 class="result-titles" id="sub-freq">Substitutions and frequencies</h3>
+    <div class="snp-info">
+      <p>For a given SNP, there can be multiple amino acid subsitutions and/or nucleotide subsitutions. Multiple
+        substitutions may be due to the protein having multiple isomers (forms).</p>
+      <p>These polar area charts (which are similar to a pie chart but shows fractions in terms of area rather than
+        angle) represent the nucleotide and/or amino acid substiutions that are documented for this SNP. The larger
+        values indicate the subsitutions that have a greater association with the given SNP.</p>
+    </div>
+    <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10" ></canvas></div>
+    <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
+    <p>The nucleotide substitutions (with frequency) are
+      {% for i in range(0, len(sorted_nuclist[0])) %}
+      {% if i == len(sorted_nuclist[0]) - 1 %}
+      {{sorted_nuclist[0][i]}} ({{sorted_nuclist[1][i]}}).
+      {% else %}
+      {{sorted_nuclist[0][i]}} ({{sorted_nuclist[1][i]}}),
+      {% endif %}
+      {% endfor %}
+      The amino acid substitutions (with frequency) are
+      {% for i in range(0, len(sorted_aalist[0])) %}
+      {% if i == len(sorted_nuclist[0]) - 1 %}
+      {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}).
+      {% else %}
+      {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}),
+      {% endif %}
+      {% endfor %}</p>
 
-
-    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: left;">
-      <canvas id="chart1" width="20" height="10" style="float:left;margin-left:2em;margin-bottom:2em"></canvas></div>
-    <div id="canvas-holder" style="background-color:#FFFFFF;width:50%;float: right;">
-      <canvas id="chart2" width="20" height="10" style="float:right;margin-right:2em;margin-bottom:2em"></canvas></div>
-    <p>The more common substitutions are typically more documented.</p>
+    <div class="snp-info">
+      <p>For a given SNP, the genotype can be compared to Genome Wide Studies such as The 1000 Genomes Project or the
+        HapMap Project.</p>
+      <p>These pie charts represent the frequency of the nucleotide corresponding to the SNP compared to the frequency
+        of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
+    </div>
     {% if freq1000g != 'N/A' and freqhapmap != 'N/A' %}
-    <div style="background-color:#FFFFFF;width:50%;float: left;">
-      <canvas id="pie1" width="20" height="10" style="float:left;margin-left:2em;margin-bottom:2em"></canvas></div>
-    <div style="background-color:#FFFFFF;width:50%;float: right;">
-      <canvas id="pie2" width="20" height="10" style="float:right;margin-right:2em;margin-bottom:2em"></canvas></div>
+    <div class="left-box"><canvas id="pie1" width="20" height="10" class="left-graph"></canvas></div>
+    <div class="right-box"><canvas id="pie2" width="20" height="10" class="right-graph"></canvas></div>
+    <p>From the 1000 Genomes Project, the {{ freq1000g[0] }} nuclotide has a frequency of {{freq1000g[3:]}}
+      and from the HapMap Project, the {{ freqhapmap[0] }} nuclotide has a frequency of {{ freqhapmap[3:] }}.</p>
+
     {% else %}
     <p>There are no nucleotide frequencies for this SNP from the 1000 Genomes Project or the HapMap Project.</p>
     {% endif %}
@@ -59,7 +97,9 @@
         data: {
           labels: '{{sorted_nuclist[0]| tojson}}'.slice(1, -1).split(', '),
           datasets: [{
-            backgroundColor: ["#351f39", "#726a95", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174","#889bae"],
+            backgroundColor: ["#351f39", "#726a95", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
+              "#889bae"
+            ],
             data: '{{sorted_nuclist[1]| tojson}}'.slice(1, -1).split(', ')
           }]
         },
@@ -84,7 +124,9 @@
         data: {
           labels: aa_label,
           datasets: [{
-            backgroundColor: ["#351f39", "#726a95", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174","#889bae"],
+            backgroundColor: ["#351f39", "#726a95", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
+              "#889bae"
+            ],
             data: aa_val
           }]
         },
@@ -141,17 +183,19 @@
       });
     </script>
 
-    <h3 class="result-titles">Change in binding affinity (∆∆G)</h3>
-    <p>The ∆∆G value can only be determined in there is a known amino acid substitution.</p>
-    <p>The ∆∆G value can be calculated from wild -> mutated or mutated -> wild.</p>
-    <p>UEP only evaluates mutations located in highly-packed interface positions.</p>
-    <p>SAAMBE-3D and I-Mutant2.0 Structure only calcuate ∆∆G if the position is present on the pdb structure.</p>
+    <h3 class="result-titles" id="bind-affinity">Change in binding affinity (∆∆G)</h3>
+    <div class="snp-info">
+      <p>The ∆∆G value can only be determined in there is a known amino acid substitution. The ∆∆G value can be
+        calculated from wild -> mutated or mutated -> wild.</p>
+      <p>UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0 Structure
+        only calcuate ∆∆G if the position is present on the pdb structure.</p>
+    </div>
     {% if aa1 != 'N/A' %}
     <form action="#" method="post">
       <input type="submit" name="ddgcalc" value="wild" onclick="$('#loading').show();">
       <input type="submit" name="ddgcalc" value="mutated" onclick="$('#loading').show();">
     </form>
-    <div id="loading" style="display:none;">
+    <div id="loading">
       <p>Loading ... </p>
       <!-- <img src="static/loadingimage.gif" alt="loading"> -->
     </div>
@@ -159,7 +203,7 @@
     {% if ddgresults %}
     <p>Calculated with {{pdbselect}} and {{aa1}}</p>
 
-    <table id="example" class="display" style="width:100%">
+    <table id="example" class="display">
       <tr>
         <th>Program</th>
         <th>∆∆G (kcal/mol)</th>
@@ -181,19 +225,23 @@
     {% endif %}
     {% if pdb != 'N/A' %}
 
-    <h3 class="result-titles">Protein viewer</h3>
+    <h3 class="result-titles" id="protein-viewer">Protein viewer </h3>
+    <div class="snp-info">
+      <p>To view protein, calculate change in binding affinity. </p>
 
-    <form action="#" method="post">
-      {% for i in pdb %}
-      <input type="submit" name="pdbselect" value={{i}}>
-      {% endfor %}
-    </form>
+      {% if ddgresults %}
+      <p>The specific areas (if any) that the {{gene}} protein is affected by {{snp}} in {{pdbselect}} is shown in
+        purple.
+      </p>
+      {% endif %}
+    </div>
 
-    {% if ddgresults %}
-    <p>The specific areas (if any) that the {{gene}} protein is affected by {{snp}} in {{pdbselect}} is shown in purple.
-    </p>
-    {% endif %}
     <div>
+      <form action="#" method="post">
+        {% for i in pdb %}
+        <input type="submit" name="pdbselect" value={{i}}>
+        {% endfor %}
+      </form>
 
       <script src="https://cdn.rawgit.com/arose/ngl/v0.10.4-1/dist/ngl.js "></script>
 
@@ -218,7 +266,7 @@
           });
         });
       </script>
-      <div id="viewport" style="width:100%; height:300px;"></div>
+      <div id="viewport"></div>
     </div>
     {% endif %}
 
