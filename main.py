@@ -46,17 +46,13 @@ def input():
                     if '#' not in line and 'i' not in line:
                         if 'rs' in line and len(re.split(r'\t', line.rstrip('\n'))) == 4:
                             temp = re.split(r'\t', line.rstrip('\n'))
-                            sub = is_missense(temp)
-                            if sub != False:
-                                temp.append(sub)
-                                # print(temp)
+                            if temp[3] != "--":
                                 rs_list.append(temp)
-                            # if temp[3] != "--" and chr_df[chr_df[1]==temp[0]].index.values:
-                            #     print(temp)
-                            #     rs_list.append(temp.append(chr_df[2]))
                 if len(rs_list) > 0:
-                    rs_df = pd.DataFrame(rs_list,columns=['rsid','chr','pos','geno', 'subs'])
-                    rs_df.to_pickle("./uploads/"+filename+".pkl")
+                    rs_df = pd.DataFrame(rs_list,columns=['rsid','chr','pos','geno'])
+                    for i in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+                        temp = rs_df[rs_df['chr'] == i]
+                        temp.to_pickle("./uploads/"+filename+"_"+i+".pkl")
                     return redirect(url_for("select"))
                 else:
                     return render_template("input.html", error = "Error: File could not be parsed. Please check that this is a raw genotype file.")
@@ -76,11 +72,11 @@ def select():
 def index_get_data():
     chrom = session["chrom"] if session.get("chrom") != None else str(1)
     filename = session["file"]
-    # rslist = parsefile(filename, chrom)
-    rsdf = pd.read_pickle("./uploads/"+filename+".pkl")
-    chrdf = rsdf.loc[rsdf['chr'] == chrom]
-    rslist = chrdf.values.tolist()
-    # rslist = pd.read_pickle("./uploads/"+filename+".pkl")
+    rs_df = pd.read_pickle("./uploads/"+filename+"_"+chrom+".pkl")
+    chr_df = pd.read_pickle("./missense-db/miss_chr"+chrom+".pkl")
+    chr_df = chr_df.rename(columns={1: "rsid", 2: "sub"})
+    rschr_df = rs_df.join(chr_df.set_index('rsid'), on='rsid')
+    rslist = rschr_df.dropna().values.tolist()
     cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution']
     df = pd.DataFrame(rslist, columns=cols)
     datatable = df.to_json(orient="table")
