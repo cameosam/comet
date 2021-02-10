@@ -9,6 +9,7 @@ import os
 import urllib.request
 import requests
 from io import StringIO
+import pandas as pd
 
 Entrez.email = "casamesh@lakeheadu.ca"
 
@@ -26,6 +27,31 @@ def parsefile(filename, chrom):
                 rslist.append(temp)
     return rslist
 
+def parse_df(filename, chrom):
+    rslist = []
+    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+    chr_df = pd.read_pickle("./miss_chr1.pkl")
+    for i in range(len(rs_df)):
+        if rs_df.at[i,'rsid'] in chr_df[1].values:
+            index_val = chr_df[chr_df[1]==rs_df.at[i,'rsid']].index.values
+            # print(rs_df.iloc[i,:].append(chr_df[2][index_val]))
+            rslist.append(list(rs_df.iloc[i,:].append(chr_df[2][index_val])))
+    return rslist
+
+def is_missense(snp_info):
+    if snp_info[1] in ["1","2","3","4","5","6","7","8"]:
+        if snp_info[3] != "--":
+            chr_df = pd.read_pickle("./missense-db/miss_chr"+snp_info[1]+".pkl")
+            if snp_info[0] in chr_df[1].values:
+                # print(str(chr_df[2][chr_df[chr_df[1]==snp_info[0]].index.values]))
+                return (chr_df.loc[chr_df[1] == snp_info[0], 2].item())
+            else:
+                return False
+        else:
+            return False       
+    else:
+        return False
+    
 def findpdb(gene):
     params = {
         "query": 

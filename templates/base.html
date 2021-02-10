@@ -29,18 +29,22 @@
         <li><a class="nav-link" href="/home">Home</a></li>
         <li><a class="nav-link" href="/about">About</a></li>
         <li><a class="nav-link" href="https://github.com/cameosam/comet">GitHub</a>
-        <li><a class="nav-link" style="border-style: solid; border-color: darkred;" href="/endsession">End Session</a>
+        <!-- <li><a class="nav-link" href="/endsession">End Session</a> -->
+        <li><input type="button" class="btn btn-danger btn-sm" onClick="location.href='/endsession'" style="margin: 5px" value="End Session" /></li>
         </li>
       </ul>
     </div>
     </div>
   </nav>
-
+  <div class="wrapper">
   {% block content %}
 
   {% endblock %}
-  <footer>
-    <p>Test</p>
+  <div class="push"></div>
+  </div>
+  <footer class="footer">
+    <p>Created by Cameo Sameshima</p>
+    <p>For questions or suggestions, please email me at <a href="mailto:casamesh@lakeheadu.ca">casamesh@lakeheadu.ca</a></p>
   </footer>
 
 </body>

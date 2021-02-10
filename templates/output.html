@@ -50,11 +50,9 @@
 
     <h3 class="result-titles" id="sub-freq">Substitutions and frequencies</h3>
     <div class="snp-info">
-      <p>For a given SNP, there can be multiple amino acid subsitutions and/or nucleotide subsitutions. Multiple
-        substitutions may be due to the protein having multiple isomers (forms).</p>
       <p>These polar area charts (which are similar to a pie chart but shows fractions in terms of area rather than
         angle) represent the nucleotide and/or amino acid substiutions that are documented for this SNP. The larger
-        values indicate the subsitutions that have a greater association with the given SNP.</p>
+        values indicate the subsitutions that are more commonly associated with the given SNP.</p>
     </div>
     <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10" ></canvas></div>
     <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
@@ -76,8 +74,6 @@
       {% endfor %}</p>
 
     <div class="snp-info">
-      <p>For a given SNP, the genotype can be compared to Genome Wide Studies such as The 1000 Genomes Project or the
-        HapMap Project.</p>
       <p>These pie charts represent the frequency of the nucleotide corresponding to the SNP compared to the frequency
         of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
     </div>

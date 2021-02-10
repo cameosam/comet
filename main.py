@@ -40,7 +40,29 @@ def input():
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 session["file"] = filename
-                return redirect(url_for("select"))
+                # pickle the file
+                rs_list = []
+                for line in open(app.config['UPLOAD_FOLDER']+filename):
+                    if '#' not in line and 'i' not in line:
+                        if 'rs' in line and len(re.split(r'\t', line.rstrip('\n'))) == 4:
+                            temp = re.split(r'\t', line.rstrip('\n'))
+                            sub = is_missense(temp)
+                            if sub != False:
+                                temp.append(sub)
+                                # print(temp)
+                                rs_list.append(temp)
+                            # if temp[3] != "--" and chr_df[chr_df[1]==temp[0]].index.values:
+                            #     print(temp)
+                            #     rs_list.append(temp.append(chr_df[2]))
+                if len(rs_list) > 0:
+                    rs_df = pd.DataFrame(rs_list,columns=['rsid','chr','pos','geno', 'subs'])
+                    rs_df.to_pickle("./uploads/"+filename+".pkl")
+                    return redirect(url_for("select"))
+                else:
+                    return render_template("input.html", error = "Error: File could not be parsed. Please check that this is a raw genotype file.")
+            else:
+                return render_template("input.html", error = "Error: Incorrect file type. Please upload a .txt file.")
+
     else:
         return render_template("input.html")
 
@@ -54,8 +76,12 @@ def select():
 def index_get_data():
     chrom = session["chrom"] if session.get("chrom") != None else str(1)
     filename = session["file"]
-    rslist = parsefile(filename, chrom)
-    cols = ['rsid', 'chromosome', 'position', 'genotype']
+    # rslist = parsefile(filename, chrom)
+    rsdf = pd.read_pickle("./uploads/"+filename+".pkl")
+    chrdf = rsdf.loc[rsdf['chr'] == chrom]
+    rslist = chrdf.values.tolist()
+    # rslist = pd.read_pickle("./uploads/"+filename+".pkl")
+    cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution']
     df = pd.DataFrame(rslist, columns=cols)
     datatable = df.to_json(orient="table")
     jsontable = json.loads(datatable)
