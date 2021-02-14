@@ -9,8 +9,9 @@
             genotype files from OpenSnp. (<a href="https://opensnp.org/">OpenSNP Link</a>)</p>
         <p><strong>When you are finished using this application, please click End Session </strong> (the red button located in the top right corner) to automatically delete the uploaded file and any session data.</p>
     </div>
-    <form method=post enctype=multipart/form-data> <input type=file name=file>
-
+    <form method=post enctype=multipart/form-data> 
+        <label for="uploadfile">Upload raw genotype file:</label>
+        <input id="uploadfile" type=file name=file>
         <input type=submit class="btn btn-primary" style="display: block; margin-top: 15px;" value="Upload and analyze file">
     </form>
     <div>

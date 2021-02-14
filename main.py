@@ -25,6 +25,7 @@ def about():
 def endsession():
     if session.get("file") != None:
         os.remove('uploads/'+session["file"])
+        # remove pickles
         [session.pop(key) for key in list(session.keys())]
         flash('Thanks for using COMET. All session data has been deleted.')
     else:
