@@ -113,6 +113,7 @@ def getsnpinfo(rsid):
     chromosome = record['CHR']
     docsum = record['DOCSUM']
     clinical = record['CLINICAL_SIGNIFICANCE'] if record['CLINICAL_SIGNIFICANCE'] !=  '' else "N/A"
+    clinical = clinical.replace("-"," ").split(",")
 
     # substitutions
     nuclist = []
@@ -154,7 +155,7 @@ def getsnpinfo(rsid):
         if 'HapMap' in study.values():
             freq_hm = study['FREQ'].partition("/")[0]
 
-    return gene_name, chromosome, freq_kg, freq_hm, clinical.split(","), sorted_nuclist, sorted_aalist, first_aa
+    return gene_name, chromosome, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, first_aa
 
 def getsequence(uniprotcode):
     baseUrl = "http://www.uniprot.org/uniprot/"

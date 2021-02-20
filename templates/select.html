@@ -14,13 +14,15 @@
 
         <div id="chromosomes">
             <form action="#" method="post">
+                <div role="group" aria-label="Chromosome buttons">
                 {% for i in (list(range(1, 23)) + list(['X', 'Y'])) %}
-                <input type="submit" name="chrom" value={{i}}>
+                <input type="submit" class="btn btn-outline-dark" name="chrom" value={{i}}>
                 {% endfor %}
+            </div>
             </form>
         </div>
 
-        <table id="example" class="display">
+        <table id="snptable" class="display">
             <thead>
                 <tr>
                     <th>rsid</th>
@@ -35,7 +37,7 @@
 
         <script>
             $(document).ready(function () {
-                var table = $('#example').DataTable({
+                var table = $('#snptable').DataTable({
                     "ajax": {
                         "url": "/showtable",
                         "dataType": "json",
@@ -69,7 +71,7 @@
                     }]
 
                 });
-                $('#example tbody').on('click', 'button', function () {
+                $('#snptable tbody').on('click', 'button', function () {
                     var data = table.row($(this).parents('tr')).data();
                     $.post(`/getchoice?rsid=${data["rsid"]}&genotype=${data["genotype"]}`)
                         .done(() => {
@@ -79,6 +81,5 @@
 
             });
         </script>
-
 </div>
 {% endblock %}

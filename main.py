@@ -119,20 +119,20 @@ def output():
         rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist = session[
                 "output"]
         if 'ddgcalc' in request.form:
-            if request.form['ddgcalc'] == 'mutated':
-                if first_aa != "N/A":
-                    ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, True)
-                else:
-                    chain = "*"
-                    ddgresults = [["N/A" for i in range(2)] for j in range(4)]
-                return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len)
+            # if request.form['ddgcalc'] == 'mutated':
+            if first_aa != "N/A":
+                ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, True)
             else:
-                if first_aa != "N/A":
-                    ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, False)    
-                else:
-                    chain = "*"
-                    ddgresults = [["N/A" for i in range(2)] for j in range(4)]
-                return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len) 
+                chain = "*"
+                ddgresults = [["N/A" for i in range(2)] for j in range(4)]
+            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len)
+            # else:
+            #     if first_aa != "N/A":
+            #         ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, False)    
+            #     else:
+            #         chain = "*"
+            #         ddgresults = [["N/A" for i in range(2)] for j in range(4)]
+            #     return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len) 
         elif 'pdbselect' in request.form:
             pdbselect = request.form['pdbselect']
             if first_aa != "N/A":

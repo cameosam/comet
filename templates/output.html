@@ -6,55 +6,68 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='comet.ico') }}">
   <title>Results</title>
 </head>
 
 <body>
   <div class="container">
-    <!-- <div class id="title"> -->
-      <div class="row">
-        <div class="col">
-          <h1>{{snp}} Results</h1>
-          <div role="group" aria-label="Navigation buttons">
-            <a class="btn btn-secondary jumpto" href="/select">Back to table</a>
-            <a class="btn btn-secondary jumpto" href="/prevsnp">Previous SNP</a>
-            <a class="btn btn-secondary jumpto" href="/nextsnp">Next SNP</a>
-          </div>
-        </div>
-        <div class="col jumpto">
-          <p></p>
-          <p>Jump to:</p>
-          <p><a href="#sub-freq">Substitutions and frequencies</a></p>
-          <p><a href="#bind-affinity">Change in binding affinity (∆∆G)</a></p>
-          <p><a href="#protein-viewer">Protein viewer</a></p>
-        </div>
-
-    </div>
-    
-    <p></p>
     <div class="row">
-      <div class="col-sm snp-info">
-        <p>Gene: {{gene}}</p>
-        <P>Chromosome: {{chr}}</P>
-        <p>Genotype: {{genotype}}</p>
+      <div class="col">
+        <h1>{{snp}} Results</h1>
+        <div role="group" aria-label="Navigation buttons">
+          <a class="btn btn-secondary jumpto" href="/select">Back to table</a>
+          <a class="btn btn-secondary jumpto" href="/prevsnp">Previous SNP</a>
+          <a class="btn btn-secondary jumpto" href="/nextsnp">Next SNP</a>
+        </div>
       </div>
-      <div class="col-sm snp-info">
-        <p>Clinical significance:</p>
-        {% for item in clin %}
-        <ul>
-          <li>{{item}}</li>
-        </ul>
-        {% endfor %}
+      <div class="col jumpto">
+        <p></p>
+        <p>Jump to:</p>
+        <a href="#sub-freq">Substitutions and frequencies</a><br>
+        <a href="#bind-affinity">Change in binding affinity (∆∆G)</a><br>
+        <a href="#protein-viewer">Protein viewer</a><br>
+      </div>
+    </div>
+
+    <h2 class="result-titles">{{snp}}</h2>
+    <hr>
+    <div class="row">
+      <div class="col-sm">
+        <table style="width: 40% ;margin-left: 25%;">
+          <tr>
+            <th>Gene:</th>
+            <td>{{gene}}</td>
+          </tr>
+          <tr>
+            <th>Chromosome:</th>
+            <td>{{chr}}</td>
+          </tr>
+          <tr>
+            <th>Genotype:</th>
+            <td>{{genotype}}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-sm">
+        <table>
+          <tr>
+            <th style="vertical-align: top;">Clinical significance:</th>
+            <td>{% for i in clin %}
+              {{i}} <br>
+              {% endfor %}</td>
+          </tr>
+        </table>
       </div>
     </div>
 
     <h2 class="result-titles" id="sub-freq">Substitutions and frequencies</h2>
-    <div class="snp-info">
-      <p>These polar area charts (which are similar to a pie chart but shows fractions in terms of area rather than
-        angle) represent the nucleotide and/or amino acid substiutions that are documented for this SNP. The larger
-        values indicate the subsitutions that are more commonly associated with the given SNP.</p>
-    </div>
-    <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10" ></canvas></div>
+    <hr>
+    <p class="grey-border">These polar area charts (which are similar to a pie chart but shows fractions in terms of
+      area rather than angle) represent the nucleotide and/or amino acid substiutions that are documented for this SNP. The larger
+      values indicate the subsitutions that are more commonly associated with the given SNP.</p>
+    <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10"></canvas></div>
     <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
     <p>The nucleotide substitutions (with frequency) are
       {% for i in range(0, len(sorted_nuclist[0])) %}
@@ -72,21 +85,17 @@
       {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}),
       {% endif %}
       {% endfor %}</p>
-
-    <div class="snp-info">
-      <p>These pie charts represent the frequency of the nucleotide corresponding to the SNP compared to the frequency
-        of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
-    </div>
     {% if freq1000g != 'N/A' and freqhapmap != 'N/A' %}
+    <p class="grey-border">These pie charts represent the frequency of the nucleotide corresponding to the SNP
+      compared to the frequency
+      of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
     <div class="left-box"><canvas id="pie1" width="20" height="10" class="left-graph"></canvas></div>
     <div class="right-box"><canvas id="pie2" width="20" height="10" class="right-graph"></canvas></div>
     <p>From the 1000 Genomes Project, the {{ freq1000g[0] }} nuclotide has a frequency of {{freq1000g[3:]}}
       and from the HapMap Project, the {{ freqhapmap[0] }} nuclotide has a frequency of {{ freqhapmap[3:] }}.</p>
-
     {% else %}
     <p>There are no nucleotide frequencies for this SNP from the 1000 Genomes Project or the HapMap Project.</p>
     {% endif %}
-
     <script>
       var chart1 = new Chart(document.getElementById("chart1"), {
         type: 'polarArea',
@@ -180,30 +189,28 @@
     </script>
 
     <h2 class="result-titles" id="bind-affinity">Change in binding affinity (∆∆G)</h2>
-    <div class="snp-info">
-      <p>The ∆∆G value can only be determined in there is a known amino acid substitution. The ∆∆G value can be
-        calculated from wild -> mutated or mutated -> wild.</p>
-      <p>UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0 Structure
-        only calcuate ∆∆G if the position is present on the pdb structure.</p>
-    </div>
+    <hr>
     {% if aa1 != 'N/A' %}
+    <p class="grey-border">Press the "Calculate ∆∆G" button to calculate the ∆∆G value using each predictor.</p>
     <form action="#" method="post">
-      <input type="submit" name="ddgcalc" value="wild" onclick="$('#loading').show();">
-      <input type="submit" name="ddgcalc" value="mutated" onclick="$('#loading').show();">
+      <!-- <input type="submit" name="ddgcalc" value="wild" onclick="$('#loading').show();"> -->
+      <input type="submit" class="btn btn-primary" name="ddgcalc" value="Calculate ∆∆G" onclick="$('#loading').show();">
     </form>
     <div id="loading">
       <p>Loading ... </p>
       <!-- <img src="static/loadingimage.gif" alt="loading"> -->
     </div>
+    {% else %}
+    <p class="grey-border">The ∆∆G value cannot be calculated as there is no known amino acid substitution. </p>
     {% endif %}
     {% if ddgresults %}
+    <br>
     <p>Calculated with {{pdbselect}} and {{aa1}}</p>
-
-    <table id="example" class="display">
+    <table id="results" class="display">
       <tr>
         <th id="program">Program</th>
         <th id="deltadeltaG">∆∆G (kcal/mol)</th>
-        <th id="effect" >Effect</th>
+        <th id="effect">Effect</th>
       </tr>
       {% for i in range(0, len(ddgresults)-1) %}
       <tr>
@@ -218,29 +225,24 @@
         <th id="consensus">{{ddgresults[len(ddgresults)-1][2]}}</th>
       </tr>
     </table>
+    <br>
+    <p>Note: UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0
+      Structure
+      only calcuate ∆∆G if the position is present on the pdb structure.</p>
     {% endif %}
     {% if pdb != 'N/A' %}
 
     <h2 class="result-titles" id="protein-viewer">Protein viewer </h2>
-    <div class="snp-info">
-      <p>To view protein, calculate change in binding affinity. </p>
-
-      {% if ddgresults %}
-      <p>The specific areas (if any) that the {{gene}} protein is affected by {{snp}} in {{pdbselect}} is shown in
-        purple.
-      </p>
-      {% endif %}
-    </div>
-
+    <hr>
+    {% if ddgresults %}
+    <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple. Selecting another PDB structure will recalculate ∆∆G.</p>
     <div>
       <form action="#" method="post">
         {% for i in pdb %}
-        <input type="submit" name="pdbselect" value={{i}}>
+        <input type="submit" class="btn btn-outline-dark" name="pdbselect" value={{i}}>
         {% endfor %}
       </form>
-
       <script src="https://cdn.rawgit.com/arose/ngl/v0.10.4-1/dist/ngl.js "></script>
-
       <script>
         var pdbfile = '{{ pdbselect }}';
         var rscb = "rcsb://";
@@ -264,9 +266,10 @@
       </script>
       <div id="viewport"></div>
     </div>
+    {% else %}
+    <p class="grey-border">Calculate ∆∆G to view protein structure.</p>
     {% endif %}
-
+    {% endif %}
   </div>
 </body>
-
 {% endblock %}
