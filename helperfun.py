@@ -18,14 +18,14 @@ def subprocess_cmd(command):
     proc_stdout = process.communicate()[0].strip()
     return (proc_stdout)
 
-def parsefile(filename, chrom):
-    rslist = []
-    for line in open('uploads/'+filename):
-        if '#' not in line and 'i' not in line:
-            temp = re.split(r'\t', line.rstrip('\n'))
-            if temp[1] == chrom and temp[3] != "--":
-                rslist.append(temp)
-    return rslist
+# def parsefile(filename, chrom):
+#     rslist = []
+#     for line in open('uploads/'+filename):
+#         if '#' not in line and 'i' not in line:
+#             temp = re.split(r'\t', line.rstrip('\n'))
+#             if temp[1] == chrom and temp[3] != "--":
+#                 rslist.append(temp)
+#     return rslist
 
 def parse_df(filename, chrom):
     rslist = []

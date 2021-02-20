@@ -51,9 +51,12 @@ def input():
                                 rs_list.append(temp)
                 if len(rs_list) > 0:
                     rs_df = pd.DataFrame(rs_list,columns=['rsid','chr','pos','geno'])
-                    for i in ["1", "2", "3", "4", "5", "6", "7", "8"]:
-                        temp = rs_df[rs_df['chr'] == i]
-                        temp.to_pickle("./uploads/"+filename+"_"+i+".pkl")
+                    db = pd.read_pickle("./missense-db/snpDB_V1.pkl")
+                    rs_df = rs_df.join(db.set_index('rsid'), on='rsid')
+                    rs_df = rs_df.dropna()
+                    rs_df = rs_df.reset_index(drop=True)
+                    print(rs_df)
+                    rs_df.to_pickle("./uploads/"+filename+".pkl")
                     return redirect(url_for("select"))
                 else:
                     return render_template("input.html", error = "Error: File could not be parsed. Please check that this is a raw genotype file.")
@@ -73,13 +76,12 @@ def select():
 def index_get_data():
     chrom = session["chrom"] if session.get("chrom") != None else str(1)
     filename = session["file"]
-    rs_df = pd.read_pickle("./uploads/"+filename+"_"+chrom+".pkl")
-    chr_df = pd.read_pickle("./missense-db/miss_chr"+chrom+".pkl")
-    chr_df = chr_df.rename(columns={1: "rsid", 2: "sub"})
-    rschr_df = rs_df.join(chr_df.set_index('rsid'), on='rsid')
-    rslist = rschr_df.dropna().values.tolist()
+    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+    rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist()
+    # rslist = rs_df_chr.tolist()
     cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution']
-    df = pd.DataFrame(rslist, columns=cols)
+   
+    df = pd.DataFrame(rs_df_chr, columns=cols)
     datatable = df.to_json(orient="table")
     jsontable = json.loads(datatable)
     return jsonify(jsontable)
@@ -88,22 +90,34 @@ def index_get_data():
 def next_snp():
     curr_snp = session["rsid"]
     filename = session["file"]
-    chrom = session["chrom"] if session.get("chrom") != None else str(1)
-    rslist = parsefile(filename, chrom)
-    curr_index = [index for index, row in enumerate(rslist) if curr_snp in row]
-    session["rsid"] = rslist[curr_index[0]+1][0]
-    session["genotype"] = rslist[curr_index[0]+1][3]
+    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+    index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
+    if index == len(rs_df)-1:
+        index = 0
+    session["rsid"] = rs_df.loc[rs_df.index[index+1], 'rsid']
+    session["genotype"] = rs_df.loc[rs_df.index[index+1], 'geno']
+    # chrom = session["chrom"] if session.get("chrom") != None else str(1)
+    # rslist = parsefile(filename, chrom)
+    # curr_index = [index for index, row in enumerate(rslist) if curr_snp in row]
+    # session["rsid"] = rslist[curr_index[0]+1][0]
+    # session["genotype"] = rslist[curr_index[0]+1][3]
     return redirect(url_for("output"))
 
 @app.route('/prevsnp')
 def prev_snp():
     curr_snp = session["rsid"]
     filename = session["file"]
-    chrom = session["chrom"]
-    rslist = parsefile(filename, chrom)
-    curr_index = [index for index, row in enumerate(rslist) if curr_snp in row]
-    session["rsid"] = rslist[curr_index[0]-1][0]
-    session["genotype"] = rslist[curr_index[0]-1][3]
+    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+    index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
+    if index == 0:
+        index = len(rs_df)-1
+    session["rsid"] = rs_df.loc[rs_df.index[index-1], 'rsid']
+    session["genotype"] = rs_df.loc[rs_df.index[index-1], 'geno']
+    # chrom = session["chrom"]
+    # rslist = parsefile(filename, chrom)
+    # curr_index = [index for index, row in enumerate(rslist) if curr_snp in row]
+    # session["rsid"] = rslist[curr_index[0]-1][0]
+    # session["genotype"] = rslist[curr_index[0]-1][3]
     return redirect(url_for("output"))
 
 @app.route("/getchoice", methods=["POST"])
