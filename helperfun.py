@@ -102,7 +102,7 @@ def findpdb(gene):
         return "N/A"
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'txt'
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'txt' and filename != ''
 
 def getsnpinfo(rsid):
     handle = Entrez.esummary(db="snp", term="[snp_id]", id=rsid[2:])
