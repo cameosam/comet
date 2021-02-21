@@ -8,6 +8,7 @@ import pandas as pd
 from helperfun import *
 from ddgcalc import ddgcalcs
 import secrets
+import time
 
 # from flask_session import Session
 # from datetime import timedelta
@@ -33,6 +34,13 @@ app.config['SESSION_PERMANENT'] = True
 @app.route("/")
 @app.route("/home")
 def index():
+    now = time.time()
+    files = [os.path.join(app.config['UPLOAD_FOLDER'], filename) for filename in os.listdir( app.config['UPLOAD_FOLDER'])]
+    for filename in files:
+        # automatic delete of upladed files after 24 hours
+        if (now - os.stat(filename).st_mtime) > (24 * 60 * 60):
+            command = "rm {0}".format(filename)
+            subprocess.call(command, shell=True)
     return render_template("index.html")
 
 @app.route("/about")
@@ -43,10 +51,8 @@ def about():
 def endsession():
     if session.get("file") != None:
         os.remove('uploads/'+session["file"]+'.pkl')
-        os.remove('uploads/'+session["file"])
-        # remove pickles
         [session.pop(key) for key in list(session.keys())]
-        flash('Thanks for using COMET. All session data has been deleted.')
+        flash('Thanks for using COMET. All session data and files have been deleted.')
     else:
         flash('Nothing to be deleted!')
     return redirect(url_for('index'))
@@ -58,7 +64,7 @@ def input():
             file = request.files['file']
             if allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                filename = filename + secrets.token_urlsafe(16)  
+                filename = filename[:-4] + secrets.token_urlsafe(16)  
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 session["file"] = filename
                 rs_list = []
@@ -83,6 +89,7 @@ def input():
                     rs_df = rs_df.join(db.set_index('rsid'), on='rsid')
                     rs_df = rs_df.dropna()
                     rs_df = rs_df.reset_index(drop=True)
+                    os.remove('./uploads/'+filename)
                     rs_df.to_pickle("./uploads/"+filename+".pkl")
                     return redirect(url_for("select"))
                 else:
