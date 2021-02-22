@@ -1,16 +1,13 @@
 /**TAG SELECTORS**/
-/* h3,
-h2,
-h1 {
-    padding: 20px 20px 20px 0;
-} */
 h1 {
     margin-top: 20px;
 }
+
 table {
     border-collapse: collapse;
     width: 100%;
 }
+
 th.info {
     width: 40%;
 }
@@ -20,34 +17,39 @@ td {
     text-align: left;
     padding: 8px;
 }
-hr{
+
+hr {
     border: 5px solid #8CBDB9;
-  border-radius: 2px;
+    border-radius: 2px;
 }
 
-html, body {
+html,
+body {
     color: #2D3E4E;
     height: 100%;
     margin: 0;
-    /* background-color: lightgray; */
-  }
-  .wrapper {
+}
+
+.wrapper {
     min-height: 100%;
     margin-bottom: -50px;
-  }
-  .push {
+}
+
+.push {
     height: 50px;
-  }
-  .footer{
+}
+
+.footer {
     text-align: center;
     margin-top: 50px;
-    padding: 20px 0 100px 0; 
+    padding: 20px 0 100px 0;
     height: 50px;
     background-color: #f1f6f9;
     border-style: solid;
     border-width: 1px 0 0 0;
-    border-color: #d8dde0; 
-  }
+    border-color: #d8dde0;
+}
+
 /**CLASS SELECTORS**/
 .jumpto {
     margin-top: 10px;
@@ -57,12 +59,10 @@ html, body {
 .snp-info {
     padding: 10px;
     margin: 10px;
-    /* border-style: solid; */
-    /* border-color: lightgrey; */
     background-color: white;
 }
 
-.grey-border{
+.grey-border {
     padding: 10px;
     margin: 10px 0 20px 0;
     border-style: solid;
@@ -71,10 +71,6 @@ html, body {
 
 .result-titles {
     text-align: center;
-    /* background-color: #9ba4b4; */
-    /* border-style: solid none solid none; */
-    /* border-color: #8b93a2; */
-    /* color:#212529; */
     padding-top: 20px;
     margin: 0 10% 0 10%;
 }
@@ -93,16 +89,13 @@ html, body {
 
 .jumbotron {
     text-align: center;
-    /* margin-top: 20px; */
-    /* color: #f1f6f9; */
     background-color: #E8ECEB;
-    /* margin: 0 10% 0 10%; */
-    /* margin-top: 20px;*/
     padding: 150px;
-} 
+}
+
 .predictors {
     text-align: center;
-   
+
 }
 
 .left-box {
@@ -128,6 +121,7 @@ html, body {
     margin-right: 2em;
     margin-bottom: 2em
 }
+
 .error {
     color: red;
     margin-top: 10px;

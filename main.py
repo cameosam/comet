@@ -93,6 +93,7 @@ def input():
                     rs_df.to_pickle("./uploads/"+filename+".pkl")
                     return redirect(url_for("select"))
                 else:
+                    os.remove('./uploads/'+filename)
                     return render_template("input.html", error = "Error: File could not be parsed. Please check that this is a raw genotype file.")
             else:
                 return render_template("input.html", error = "Error: Incorrect file type. Please upload a .txt file.")
@@ -151,14 +152,12 @@ def testid():
 
 @app.route("/output", methods=["POST", "GET"])
 def output():
-    print("here")
-    # print(session["rsid"])
     if request.method == "POST":
         rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist = session[
                 "output"]
         if 'ddgcalc' in request.form:
             if first_aa != "N/A":
-                ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, True)
+                ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name)
             else:
                 chain = "*"
                 ddgresults = [["N/A" for i in range(2)] for j in range(4)]
@@ -166,7 +165,7 @@ def output():
         elif 'pdbselect' in request.form:
             pdbselect = request.form['pdbselect']
             if first_aa != "N/A":
-                ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name, True)
+                ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name)
             return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len)
     if "rsid" in session:
         rsid = session["rsid"]

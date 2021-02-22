@@ -27,7 +27,9 @@
         <p>Jump to:</p>
         <a href="#sub-freq">Substitutions and frequencies</a><br>
         <a href="#bind-affinity">Change in binding affinity (∆∆G)</a><br>
+        {% if pdb != 'N/A' %}
         <a href="#protein-viewer">Protein viewer</a><br>
+        {% endif %}
       </div>
     </div>
 
@@ -205,8 +207,8 @@
     {% endif %}
     {% if ddgresults %}
     <br>
-    <p>Calculated with {{pdbselect}} and {{aa1}}</p>
     <table id="results" class="display">
+      <caption>∆∆G values calculated with {{pdbselect}} and {{aa1}}</caption>
       <tr>
         <th id="program">Program</th>
         <th id="deltadeltaG">∆∆G (kcal/mol)</th>
@@ -221,7 +223,7 @@
       {% endfor %}
       <tr>
         <th id="conclusion">Stability Consensus</th>
-        <th id="space"></th>
+        <th id="space">-</th>
         <th id="consensus">{{ddgresults[len(ddgresults)-1][2]}}</th>
       </tr>
     </table>
