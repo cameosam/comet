@@ -1,17 +1,15 @@
 {% extends "base.html" %} {% block title %}Upload file{% endblock %} {% block content
     %}
 <div class="container">
-    <h1>Step 1: Upload a genotype file or browse snps</h3>
+    <h1>Step 1: Upload a genotype file</h1>
     <div class="grey-border">
         <p>This is a <strong>raw genotype text (.txt) file </strong> from a direct-to-consumer (DTC) genetic test. This application currently only supports files from 23andMe and AncestryDNA.</p>
-        <p>If you do not have a raw genotype file but would like to use this application, you can freely download raw
-            genotype files from OpenSnp. (<a href="https://opensnp.org/">OpenSNP Link</a>)</p>
         <p><strong>When you are finished using this application, please click End Session </strong> (the red button located in the top right corner) to automatically delete all files and session data.</p>
     </div>
     <form method=post enctype=multipart/form-data> 
         <label for="uploadfile">Raw genotype file:</label>
         <input id="uploadfile" type=file name=file>
-        <input type=submit class="btn btn-primary" style="display: block; margin-top: 15px;" value="Upload and analyze file">
+        <input type=submit class="btn btn-primary" style="display: block; margin-top: 15px;" value="Upload">
     </form>
     <div>
         {% if error %}
@@ -19,8 +17,11 @@
         {% endif %}
     </div>
     <hr>
-    <label for="browse">Browse SNPs:</label>
-    <input id="browse" type="button" class="btn btn-primary" onClick="location.href='/select'" value="Browse SNPs" />
+    <h1>or browse non-synonymous SNPs:</h1>
+    <div class="grey-border">
+        <p>This option shows the non-synonymous SNPs currently in the database. This does not require any file input. </p>
+    </div>
+    <input id="browse" type="button" class="btn btn-primary" onClick="location.href='/select'" value="Browse" />
     
     
 </div>

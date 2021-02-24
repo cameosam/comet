@@ -1,0 +1,37 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: osx-64
+@EXPLICIT
+https://repo.anaconda.com/pkgs/main/osx-64/_py-xgboost-mutex-2.0-cpu_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/blas-1.0-mkl.conda
+https://repo.anaconda.com/pkgs/main/osx-64/ca-certificates-2020.12.8-hecd8cb5_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/intel-openmp-2019.4-233.conda
+https://repo.anaconda.com/pkgs/main/osx-64/libcxx-10.0.0-1.conda
+https://repo.anaconda.com/pkgs/main/osx-64/libgfortran-3.0.1-h93005f0_2.conda
+https://repo.anaconda.com/pkgs/main/osx-64/llvm-openmp-10.0.0-h28b9765_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/zlib-1.2.11-h1de35cc_3.conda
+https://repo.anaconda.com/pkgs/main/osx-64/libffi-3.3-hb1e8313_2.conda
+https://repo.anaconda.com/pkgs/main/osx-64/libxgboost-0.90-h0a44026_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/mkl-2019.4-233.conda
+https://repo.anaconda.com/pkgs/main/osx-64/ncurses-6.2-h0a44026_1.conda
+https://repo.anaconda.com/pkgs/main/osx-64/tk-8.6.10-hb0a8c7a_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/libedit-3.1.20191231-h1de35cc_1.conda
+https://repo.anaconda.com/pkgs/main/osx-64/readline-8.0-h1de35cc_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/sqlite-3.33.0-hffcf06c_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/python-2.7.18-h47d645e_1.conda
+https://repo.anaconda.com/pkgs/main/noarch/certifi-2020.6.20-pyhd3eb1b0_3.conda
+https://repo.anaconda.com/pkgs/main/noarch/pytz-2020.5-pyhd3eb1b0_0.conda
+https://repo.anaconda.com/pkgs/main/noarch/six-1.15.0-py_0.conda
+https://repo.anaconda.com/pkgs/main/noarch/wheel-0.36.2-pyhd3eb1b0_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/mkl-service-2.3.0-py27hfbe908c_0.conda
+https://repo.anaconda.com/pkgs/main/noarch/python-dateutil-2.8.1-py_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/setuptools-44.0.0-py27_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/numpy-base-1.16.6-py27h6575580_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/pip-19.3.1-py27_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/mkl_fft-1.0.15-py27h5e564d8_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/mkl_random-1.1.0-py27ha771720_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/numpy-1.16.6-py27h81c90fd_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/pandas-0.22.0-py27h0a44026_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/scipy-1.2.1-py27h1410ff5_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/scikit-learn-0.20.3-py27h27c97d8_0.conda
+https://repo.anaconda.com/pkgs/main/osx-64/py-xgboost-0.90-py27h0a44026_0.conda

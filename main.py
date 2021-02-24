@@ -53,8 +53,11 @@ def endsession():
     if session.get("file") != None:
         if session["file"] != "N/A":
             os.remove('uploads/'+session["file"]+'.pkl')
-        [session.pop(key) for key in list(session.keys())]
-        flash('Thanks for using COMET. All session data and files have been deleted.')
+            [session.pop(key) for key in list(session.keys())]
+            flash('Thanks for using COMET. All session data and files have been deleted.')
+        else:
+            [session.pop(key) for key in list(session.keys())]
+            flash('Thanks for using COMET. All session data has been deleted.')
     else:
         flash('Nothing to be deleted!')
     return redirect(url_for('index'))
