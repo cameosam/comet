@@ -18,15 +18,6 @@ def subprocess_cmd(command):
     proc_stdout = process.communicate()[0].strip()
     return (proc_stdout)
 
-# def parsefile(filename, chrom):
-#     rslist = []
-#     for line in open('uploads/'+filename):
-#         if '#' not in line and 'i' not in line:
-#             temp = re.split(r'\t', line.rstrip('\n'))
-#             if temp[1] == chrom and temp[3] != "--":
-#                 rslist.append(temp)
-#     return rslist
-
 def parse_df(filename, chrom):
     rslist = []
     rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
@@ -34,7 +25,6 @@ def parse_df(filename, chrom):
     for i in range(len(rs_df)):
         if rs_df.at[i,'rsid'] in chr_df[1].values:
             index_val = chr_df[chr_df[1]==rs_df.at[i,'rsid']].index.values
-            # print(rs_df.iloc[i,:].append(chr_df[2][index_val]))
             rslist.append(list(rs_df.iloc[i,:].append(chr_df[2][index_val])))
     return rslist
 
@@ -43,7 +33,6 @@ def is_missense(snp_info):
         if snp_info[3] != "--":
             chr_df = pd.read_pickle("./missense-db/miss_chr"+snp_info[1]+".pkl")
             if snp_info[0] in chr_df[1].values:
-                # print(str(chr_df[2][chr_df[chr_df[1]==snp_info[0]].index.values]))
                 return (chr_df.loc[chr_df[1] == snp_info[0], 2].item())
             else:
                 return False
@@ -103,6 +92,20 @@ def findpdb(gene):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'txt' and filename != ''
+
+def getclinvar(rsid):
+    handle = Entrez.esearch(db="clinvar", term=rsid)
+    record = Entrez.read(handle)
+    conditions = []
+    if len(record["IdList"]) > 0:
+        handle = Entrez.esummary(db="clinvar", id=record["IdList"][0])
+        record = Entrez.read(handle)
+        
+        for i in range(0,len(record['DocumentSummarySet']['DocumentSummary'][0]['trait_set'])):
+            trait = record['DocumentSummarySet']['DocumentSummary'][0]['trait_set'][i]['trait_name']
+            if "not" not in trait:
+                conditions.append(trait)
+    return conditions
 
 def getsnpinfo(rsid):
     handle = Entrez.esummary(db="snp", term="[snp_id]", id=rsid[2:])

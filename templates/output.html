@@ -14,7 +14,7 @@
 <body>
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col-sm">
         <h1>{{snp}} Results</h1>
         <div role="group" aria-label="Navigation buttons">
           <a class="btn btn-secondary jumpto" href="/select">Back to table</a>
@@ -37,7 +37,7 @@
     <hr>
     <div class="row">
       <div class="col-sm">
-        <table style="margin-left: 25%;">
+        <table>
           <tr>
             <th class="info">Gene:</th>
             <td>{{gene}}</td>
@@ -63,11 +63,24 @@
         </table>
       </div>
     </div>
+    <br>
+    <div class="row">
+      <div class="col-sm">
+      {% if len(condition) != 0 %}
+      <strong>Related conditions:</strong>
+      {% for i in range(0, len(condition)) %}{% if i == len(condition) - 1 %}{{condition[i]}}.{% else %}{{condition[i]}},
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    </div>
+    </div>
+
 
     <h2 class="result-titles" id="sub-freq">Substitutions and frequencies</h2>
     <hr>
     <p class="grey-border">These polar area charts (which are similar to a pie chart but shows fractions in terms of
-      area rather than angle) represent the nucleotide and/or amino acid substiutions that are documented for this SNP. The larger
+      area rather than angle) represent the nucleotide and/or amino acid substiutions that are documented for this SNP.
+      The larger
       values indicate the subsitutions that are more commonly associated with the given SNP.</p>
     <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10"></canvas></div>
     <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
@@ -237,7 +250,8 @@
     <h2 class="result-titles" id="protein-viewer">Protein viewer </h2>
     <hr>
     {% if ddgresults %}
-    <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple. Selecting another PDB structure will recalculate ∆∆G.</p>
+    <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple. Selecting another PDB
+      structure will recalculate ∆∆G.</p>
     <div>
       <form action="#" method="post">
         {% for i in pdb %}
