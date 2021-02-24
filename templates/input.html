@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block title %}Upload file{% endblock %} {% block content
     %}
 <div class="container">
-    <h1>Step 1: Upload a genotype file</h3>
+    <h1>Step 1: Upload a genotype file or browse snps</h3>
     <div class="grey-border">
         <p>This is a <strong>raw genotype text (.txt) file </strong> from a direct-to-consumer (DTC) genetic test. This application currently only supports files from 23andMe and AncestryDNA.</p>
         <p>If you do not have a raw genotype file but would like to use this application, you can freely download raw
@@ -18,5 +18,10 @@
         <p class="error">{{ error }}</p>
         {% endif %}
     </div>
+    <hr>
+    <label for="browse">Browse SNPs:</label>
+    <input id="browse" type="button" class="btn btn-primary" onClick="location.href='/select'" value="Browse SNPs" />
+    
+    
 </div>
 {% endblock %}

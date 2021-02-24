@@ -28,13 +28,15 @@
                     <th>rsid</th>
                     <th>chromosome</th>
                     <th>position</th>
+                    {% if geno %}
                     <th>genotype</th>
+                    {% endif %}
                     <th>substitution</th>
                     <th>action</th>
                 </tr>
             </thead>
         </table>
-
+        {% if geno %}
         <script>
             $(document).ready(function () {
                 var table = $('#selectsnp').DataTable({
@@ -81,6 +83,52 @@
 
             });
         </script>
+        {% else %}
+
+        <script>
+            $(document).ready(function () {
+                var table = $('#selectsnp').DataTable({
+                    "ajax": {
+                        "url": "/showtable",
+                        "dataType": "json",
+                        "dataSrc": "data",
+                        "contentType": "application/json",
+                        "datatesting": "hello"
+                    },
+                    "columns": [{
+                            "data": "rsid"
+                        },
+                        {
+                            "data": "chromosome"
+                        },
+                        {
+                            "data": "position"
+                        },
+                        {
+                            "data": "substitution"
+                        },
+                        {
+                            "data": null
+                        }
+
+                    ],
+                    "columnDefs": [{
+                        "targets": -1,
+                        "defaultContent": "<button type='submit'>Analyze</button>"
+                    }]
+
+                });
+                $('#selectsnp tbody').on('click', 'button', function () {
+                    var data = table.row($(this).parents('tr')).data();
+                    $.post(`/getchoice?rsid=${data["rsid"]}&genotype=${data["genotype"]}`)
+                        .done(() => {
+                            window.location.replace("http://127.0.0.1:5000/output");
+                        });
+                });
+
+            });
+        </script>
+        {% endif %}
 
 </div>
 {% endblock %}

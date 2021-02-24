@@ -20,6 +20,7 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 30
 app.config['UPLOAD_FOLDER'] = './uploads/'
 app.config['SECRET_KEY'] = "supersecretkey_MUSTBECHANGED!"
 app.config['SESSION_PERMANENT'] = True
+database = "./snp-db/snpDBchr_V1.pkl"
 
 # Add server-side sessionsß
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=5)
@@ -50,7 +51,8 @@ def about():
 @app.route("/endsession")
 def endsession():
     if session.get("file") != None:
-        os.remove('uploads/'+session["file"]+'.pkl')
+        if session["file"] != "N/A":
+            os.remove('uploads/'+session["file"]+'.pkl')
         [session.pop(key) for key in list(session.keys())]
         flash('Thanks for using COMET. All session data and files have been deleted.')
     else:
@@ -78,7 +80,7 @@ def input():
                         # Ancestry
                         elif 'rs' in line and len(re.split(r'\t', line.rstrip('\n'))) == 5:
                             temp = re.split(r'\t', line.rstrip('\n'))
-                            if temp[3] != "0" and temp[3] != "I":
+                            if temp[3] != "0" and temp[3] != "I" and temp[3] != "D":
                                 temp[3] = temp[3] + temp[4]
                                 del temp[-1]
                                 rs_list.append(temp)
@@ -104,43 +106,62 @@ def input():
 @app.route("/select", methods=["POST", "GET"])
 def select():
     if request.method == "POST" and 'chrom' in request.form:
-        session["chrom"] = request.form['chrom']
-    return render_template("select.html", list=list)
+            session["chrom"] = request.form['chrom']
+    if "file" in session and session["file"] != "N/A":
+        return render_template("select.html", list=list, geno=True)
+    else:
+        session["file"] = "N/A"
+        return render_template("select.html", list=list, geno=False)
 
 @app.route('/showtable')
 def index_get_data():
     chrom = session["chrom"] if session.get("chrom") != None else str(1)
-    filename = session["file"]
-    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
-    rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist()
-    cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution']
-    df = pd.DataFrame(rs_df_chr, columns=cols)
+    if session["file"] != "N/A":
+        filename = session["file"]
+        rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+        rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist()
+        cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution']
+    else:
+        rs_df = pd.read_pickle(database)
+        rs_df_chr = rs_df.values.tolist()
+        rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist()
+        cols = ['rsid', 'chromosome', 'position', 'substitution']
+    df = pd.DataFrame(rs_df_chr, columns=cols)    
     datatable = df.to_json(orient="table")
     jsontable = json.loads(datatable)
     return jsonify(jsontable)
 
 @app.route('/nextsnp')
 def next_snp():
+    if session["file"] != "N/A":
+        filename = "./uploads/"+session["file"]+".pkl"
+    else:
+        filename = database
     curr_snp = session["rsid"]
-    filename = session["file"]
-    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+    rs_df = pd.read_pickle(filename)
     index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
     if index == len(rs_df)-1:
         index = 0
     session["rsid"] = rs_df.loc[rs_df.index[index+1], 'rsid']
-    session["genotype"] = rs_df.loc[rs_df.index[index+1], 'geno']
+    if session["file"] != "N/A":
+        session["genotype"] = rs_df.loc[rs_df.index[index+1], 'geno']
     return redirect(url_for("output"))
 
 @app.route('/prevsnp')
 def prev_snp():
+    if session["file"] != "N/A":
+        filename = "./uploads/"+session["file"]+".pkl"
+    else:
+        filename = database
     curr_snp = session["rsid"]
-    filename = session["file"]
-    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+
+    rs_df = pd.read_pickle(filename)
     index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
     if index == 0:
         index = len(rs_df)-1
     session["rsid"] = rs_df.loc[rs_df.index[index-1], 'rsid']
-    session["genotype"] = rs_df.loc[rs_df.index[index-1], 'geno']
+    if session["file"] != "N/A":
+        session["genotype"] = rs_df.loc[rs_df.index[index-1], 'geno']
     return redirect(url_for("output"))
 
 @app.route("/getchoice", methods=["POST"])
