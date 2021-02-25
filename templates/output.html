@@ -46,10 +46,12 @@
             <th class="info">Chromosome:</th>
             <td>{{chr}}</td>
           </tr>
+          {% if genotype != "N/A" and genotype != "undefined" %}
           <tr>
             <th class="info">Genotype:</th>
             <td>{{genotype}}</td>
           </tr>
+          {% endif %}
         </table>
       </div>
       <div class="col-sm">
@@ -242,8 +244,7 @@
     </table>
     <br>
     <p>Note: UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0
-      Structure
-      only calcuate ∆∆G if the position is present on the pdb structure.</p>
+      Structure only calcuate ∆∆G if the position is present on the pdb structure. PANDA and UEP only calculate ∆∆G if the secondary sequence is available.</p>
     {% endif %}
     {% if pdb != 'N/A' %}
 

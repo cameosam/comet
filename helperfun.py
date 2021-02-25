@@ -100,10 +100,9 @@ def getclinvar(rsid):
     if len(record["IdList"]) > 0:
         handle = Entrez.esummary(db="clinvar", id=record["IdList"][0])
         record = Entrez.read(handle)
-        
         for i in range(0,len(record['DocumentSummarySet']['DocumentSummary'][0]['trait_set'])):
             trait = record['DocumentSummarySet']['DocumentSummary'][0]['trait_set'][i]['trait_name']
-            if "not" not in trait:
+            if "not" not in trait and trait not in conditions:
                 conditions.append(trait)
     return conditions
 

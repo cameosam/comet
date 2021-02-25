@@ -21,13 +21,16 @@ def ddgcalcs(pdb, aasub, gene):
     uniprotcode = get_uniprot_code(gene)
 
     if pdb != "N/A":
+        print(pdb)
         # retrieve pdb file
         urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')
     
         # read pdb file to determine where mutation is on the pdb (chain and nucleotide number)
         dbref = []
-        chain = 'A'
-        shift = 0
+        # chain = 'A'
+        # shift = 0
+        chain = "N/A"
+        secondchain = "N/A"
         for line in open('prediction/tmp/'+pdb+'.pdb'):
             listval = line.split()
             if listval[0] == 'DBREF':
@@ -53,7 +56,7 @@ def ddgcalcs(pdb, aasub, gene):
     
     sequence = getsequence(uniprotcode)
 
-    if pdb != "N/A":
+    if pdb != "N/A" and chain != "N/A":
         # SAAMBE-3D calculation
         saambe_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
             cd prediction/saambe;\
@@ -73,30 +76,32 @@ def ddgcalcs(pdb, aasub, gene):
             python -O  I-Mutant2.0.py -pdbv ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
         imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
         imut2_eff = muteffect(imut2_val,False) if imut2_val != 'N/A' and muteffect(imut2_val,False) else 'N/A'
-
-        # UEP calculation
-        os.system('cd prediction/uep; python3 UEP.py --pdb=../tmp/'+pdb +'.pdb --interface='+chain+','+secondchain)
-        uep_file_path = 'prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv'
-        if path.exists(uep_file_path):
-            uep_out = pd.read_csv(uep_file_path)
-            location = uep_out.loc[uep_out['Unnamed: 0'] == chain+'_' + str(position - shift)+'_'+aasub[:3].upper(), aasub[-3:].upper()]
-            uep_val = "N/A" if location.empty else location.values[0]
-            uep_eff = muteffect(uep_val,True) if uep_val != "N/A" and muteffect(uep_val,True) else 'N/A'
-            os.remove('prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv')
+        
+        if secondchain != "N/A":
+            # UEP calculation
+            os.system('cd prediction/uep; python3 UEP.py --pdb=../tmp/'+pdb +'.pdb --interface='+chain+','+secondchain)
+            uep_file_path = 'prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv'
+            if path.exists(uep_file_path):
+                uep_out = pd.read_csv(uep_file_path)
+                location = uep_out.loc[uep_out['Unnamed: 0'] == chain+'_' + str(position - shift)+'_'+aasub[:3].upper(), aasub[-3:].upper()]
+                uep_val = "N/A" if location.empty else location.values[0]
+                uep_eff = muteffect(uep_val,True) if uep_val != "N/A" and muteffect(uep_val,True) else 'N/A'
+                os.remove('prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv')
+            else:
+                uep_val = uep_eff = 'N/A'
+            
+            # panda calculation
+            mutseq = "'" + sequence[:position-1] + mutant + sequence[position:] + "'"
+            sequence = "'" + sequence[:position-1] + wild + sequence[position:] + "'"
+            secondseq = "'" + getsequence(secounduniprotcode) + "'"
+            panda_output = subprocess_cmd('cd prediction/panda;\
+                (echo "from panda import *"; echo "print(predict_affinity('+secondseq+','+sequence+','+secondseq+','+mutseq+'))") | python')
+            panda_val = panda_output.decode("utf-8") 
+            if panda_val != "0":
+                panda_val = panda_output.decode("utf-8")[1:-1]
+            panda_eff = muteffect(panda_val,False) if panda_val != 'N/A' and muteffect(panda_val,False) else 'N/A'
         else:
-            uep_val = uep_eff = 'N/A'
-        
-        # panda calculation
-        mutseq = "'" + sequence[:position-1] + mutant + sequence[position:] + "'"
-        sequence = "'" + sequence[:position-1] + wild + sequence[position:] + "'"
-        secondseq = "'" + getsequence(secounduniprotcode) + "'"
-        panda_output = subprocess_cmd('cd prediction/panda;\
-            (echo "from panda import *"; echo "print(predict_affinity('+secondseq+','+sequence+','+secondseq+','+mutseq+'))") | python')
-        panda_val = panda_output.decode("utf-8") 
-        if panda_val != "0":
-            panda_val = panda_output.decode("utf-8")[1:-1]
-        panda_eff = muteffect(panda_val,False) if panda_val != 'N/A' and muteffect(panda_val,False) else 'N/A'
-        
+            uep_val = uep_eff = panda_val = panda_eff = 'N/A'
         # get rid of files
         os.remove('prediction/tmp/'+pdb+'.pdb')
         os.remove('prediction/tmp/'+pdb+'.dssp')

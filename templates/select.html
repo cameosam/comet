@@ -15,7 +15,7 @@
         <div id="chromosomes">
             <form action="#" method="post">
                 <div role="group" aria-label="Chromosome buttons">
-                    {% for i in (list(range(1, 23)) + list(['X', 'Y'])) %}
+                    {% for i in (list(range(1, 23)) + list(['X', 'Y', 'All'])) %}
                     <input type="submit" class="btn btn-outline-dark" name="chrom" value={{i}}>
                     {% endfor %}
                 </div>

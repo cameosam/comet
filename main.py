@@ -122,12 +122,12 @@ def index_get_data():
     if session["file"] != "N/A":
         filename = session["file"]
         rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
-        rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist()
+        rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
         cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution']
     else:
         rs_df = pd.read_pickle(database)
-        rs_df_chr = rs_df.values.tolist()
-        rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist()
+        # rs_df_chr = rs_df.values.tolist()
+        rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
         cols = ['rsid', 'chromosome', 'position', 'substitution']
     df = pd.DataFrame(rs_df_chr, columns=cols)    
     datatable = df.to_json(orient="table")
@@ -190,7 +190,7 @@ def output():
             pdbselect = request.form['pdbselect']
             if first_aa != "N/A":
                 ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name)
-            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, chain=chain, zip=zip, len=len)
+            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, chain=chain, zip=zip, len=len)
     if "rsid" in session:
         rsid = session["rsid"]
         genotype = session["genotype"]
