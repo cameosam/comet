@@ -20,7 +20,7 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 30
 app.config['UPLOAD_FOLDER'] = './uploads/'
 app.config['SECRET_KEY'] = "supersecretkey_MUSTBECHANGED!"
 app.config['SESSION_PERMANENT'] = True
-database = "./snp-db/snpDBchr_V1.pkl"
+database = "./snp-db/snpDBcg_V1.pkl"
 
 # Add server-side sessionsß
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=5)
@@ -90,7 +90,8 @@ def input():
                 if len(rs_list) > 0:
                     rs_df = pd.DataFrame(rs_list,columns=['rsid','chr','pos','geno'])
                     rs_df.replace({'chr': {"23": "X", "24": "Y", "25": "Y", "26" : "MT"}})
-                    db = pd.read_pickle("./snp-db/snpDB_V1.pkl")
+                    db = pd.read_pickle(database)
+                    db = db.drop(['chr', 'pos'], axis=1)
                     rs_df = rs_df.join(db.set_index('rsid'), on='rsid')
                     rs_df = rs_df.dropna()
                     rs_df = rs_df.reset_index(drop=True)
@@ -123,12 +124,13 @@ def index_get_data():
         filename = session["file"]
         rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
-        cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution']
+        cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene']
+        # print(rs_df_chr)
     else:
         rs_df = pd.read_pickle(database)
         # rs_df_chr = rs_df.values.tolist()
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
-        cols = ['rsid', 'chromosome', 'position', 'substitution']
+        cols = ['rsid', 'chromosome', 'position', 'substitution', 'gene']
     df = pd.DataFrame(rs_df_chr, columns=cols)    
     datatable = df.to_json(orient="table")
     jsontable = json.loads(datatable)
