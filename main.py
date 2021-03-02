@@ -20,7 +20,7 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 30
 app.config['UPLOAD_FOLDER'] = './uploads/'
 app.config['SECRET_KEY'] = "supersecretkey_MUSTBECHANGED!"
 app.config['SESSION_PERMANENT'] = True
-database = "./snp-db/snpDBcg_V1.pkl"
+database = "./snp-db/snpDB_v2.pkl"
 
 # Add server-side sessionsß
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=5)
