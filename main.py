@@ -93,6 +93,7 @@ def input():
                     db = pd.read_pickle(database)
                     db = db.drop(['chr', 'pos'], axis=1)
                     rs_df = rs_df.join(db.set_index('rsid'), on='rsid')
+                    rs_df.to_pickle("./uploads/"+filename+"unfiltered.pkl")
                     rs_df = rs_df.dropna()
                     rs_df = rs_df.reset_index(drop=True)
                     os.remove('./uploads/'+filename)
@@ -109,22 +110,35 @@ def input():
 
 @app.route("/select", methods=["POST", "GET"])
 def select():
-    if request.method == "POST" and 'chrom' in request.form:
+    if request.method == "POST": 
+        if 'turnoff' in request.form:
+            session["turnoffdb"] = True
+        if 'turnon' in request.form:
+            session.pop("turnoffdb")
+        if 'chrom' in request.form:
             session["chrom"] = request.form['chrom']
     if "file" in session and session["file"] != "N/A":
-        return render_template("select.html", list=list, geno=True)
+        if "turnoffdb" in session:
+            return render_template("select.html", list=list, geno=True, dboff = 1)
+        return render_template("select.html", list=list, geno=True, dboff = 0)
     else:
         session["file"] = "N/A"
-        return render_template("select.html", list=list, geno=False)
+        return render_template("select.html", list=list, geno=False, dboff = -1)
 
 @app.route('/showtable')
 def index_get_data():
     chrom = session["chrom"] if session.get("chrom") != None else str(1)
     if session["file"] != "N/A":
         filename = session["file"]
-        rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+        if "turnoffdb" in session:
+            rs_df = pd.read_pickle("./uploads/"+filename+"unfiltered.pkl")
+            cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene']
+        else:
+            rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+            cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene']
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
-        cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene']
+
+
     else:
         rs_df = pd.read_pickle(database)
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()

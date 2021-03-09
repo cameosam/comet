@@ -10,14 +10,30 @@
 
 <div class="container">
     <h1>Step 2: Select a SNP to analyze (filter by chromosome)</h3>
-        <p>Click the Analyze button of the SNP you are interested in.</p>
-
+        {% if dboff == 0 %}
+        <p>Click the Analyze button of the SNP you are interested in. Only non-synonymous SNPs that are present in COMET's database are shown.</p>
+        <form action="#" method="post">
+            <input type="submit" class="btn btn-secondary" name="turnoff" value="Turn off database filtering" onclick="$('#loading').show();">
+        </form>
+        {% elif  dboff == 1 %}
+        <p>Click the Analyze button of the SNP you are interested in. All SNPs in raw genotype file (except internal SNPs and mitochondrial DNA SNPs) are shown. Only non-synonymous SNPs that are present in COMET's database have a corresponding substitution and gene.</p>
+        <form action="#" method="post">
+            <input type="submit" class="btn btn-secondary" name="turnon" value="Turn on database filtering" onclick="$('#loading').show();">
+        </form>
+        {% endif %}
         <div id="chromosomes">
             <form action="#" method="post">
                 <div role="group" aria-label="Chromosome buttons">
+                    {% if dboff == 1 %}
+                    {% for i in (list(range(1, 23)) + list(['X', 'Y'])) %}
+                    <input type="submit" class="btn btn-outline-dark" name="chrom" value={{i}}>
+                    {% endfor %}
+                    {% else %}
                     {% for i in (list(range(1, 23)) + list(['X', 'Y', 'All'])) %}
                     <input type="submit" class="btn btn-outline-dark" name="chrom" value={{i}}>
                     {% endfor %}
+                    {% endif%}
+            
                 </div>
             </form>
         </div>
