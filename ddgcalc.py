@@ -11,7 +11,7 @@ from os import path
 aminoacids = {'Ala': 'A', 'Arg': 'R', 'Asn': 'N', 'Asp': 'D', 'Asx': 'B', 'Cys': 'C', 'Glu': 'E', 'Gln': 'Q', 'Glx': 'Z', 'Gly': 'G', 'His': 'H',
               'Ile': 'I', 'Leu': 'L', 'Lys': 'K', 'Met': 'M', 'Phe': 'F', 'Pro': 'P', 'Ser': 'S', 'Thr': 'T', 'Trp': 'W', 'Tyr': 'Y', 'Val': 'V', }
 
-def ddgcalcs(pdb, aasub, gene):
+def ddgcalcs(pdb, aasub, gene, protselect):
     # parse amino acid substitution -> wild_position_mutant
     wild = aminoacids.get(aasub[:3]) 
     mutant = aminoacids.get(aasub[-3:]) 
@@ -19,18 +19,15 @@ def ddgcalcs(pdb, aasub, gene):
 
     # retrieve sequence
     uniprotcode = get_uniprot_code(gene)
-
+    chain = "N/A"
+    secondchain = "N/A"
     if pdb != "N/A":
-        print(pdb)
         # retrieve pdb file
         urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')
     
         # read pdb file to determine where mutation is on the pdb (chain and nucleotide number)
         dbref = []
-        # chain = 'A'
-        # shift = 0
-        chain = "N/A"
-        secondchain = "N/A"
+        otherprot = []
         for line in open('prediction/tmp/'+pdb+'.pdb'):
             listval = line.split()
             if listval[0] == 'DBREF':
@@ -48,12 +45,21 @@ def ddgcalcs(pdb, aasub, gene):
                     chain = mol[0]
                     uniprotcode = mol[2]
                 else:
-                    secondchain = mol[0]
-                    secounduniprotcode = mol[2]
+                    if mol[3] not in otherprot:
+                        otherprot.append(mol[3])
+                    if protselect != "N/A":
+                        if mol[3] == protselect:
+                            currentprot = mol[3]
+                            secondchain = mol[0]
+                            secounduniprotcode = mol[2]
+                    else:
+                        currentprot = mol[3]
+                        secondchain = mol[0]
+                        secounduniprotcode = mol[2]
+                
             elif len(mol) < 5 and (gene in mol[2] or uniprotcode in mol[1]):
                 shift = int(mol[3]) - int(mol[0])
                 uniprotcode = mol[1]
-    
     sequence = getsequence(uniprotcode)
 
     if pdb != "N/A" and chain != "N/A":
@@ -61,9 +67,6 @@ def ddgcalcs(pdb, aasub, gene):
         saambe_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
             cd prediction/saambe;\
             python Mutation_pred.py -i ../tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 1').decode("utf-8")
-        #saambe_eff = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
-        #    python Mutation_pred.py -i tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 0').decode("utf-8")
-        #saambe_val = saambe_out.split("\n")[1]
         saambe_val = saambe_out.split("\n")[1] if "\n" in saambe_out else 'N/A'
         saambe_eff = muteffect(saambe_val,True) if saambe_val != 'N/A' and muteffect(saambe_val,True) else 'N/A'
     
@@ -132,4 +135,4 @@ def ddgcalcs(pdb, aasub, gene):
     else:
         consensus = "No change in stability"
 
-    return [["SAAMBE-3D",saambe_val, saambe_eff], ["I-Mutant2.0 Structure", imut2_val, imut2_eff], ["I-Mutant2.0 Sequence",imut2_seq_val, imut2_seq_eff], ["PANDA", panda_val, panda_eff], ["UEP",uep_val, uep_eff],["Stability Consensus","",consensus]], chain
+    return [["SAAMBE-3D",saambe_val, saambe_eff], ["I-Mutant2.0 Structure", imut2_val, imut2_eff], ["I-Mutant2.0 Sequence",imut2_seq_val, imut2_seq_eff], ["PANDA", panda_val, panda_eff], ["UEP",uep_val, uep_eff],["Stability Consensus","",consensus]], [chain, secondchain, otherprot, currentprot]

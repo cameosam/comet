@@ -68,15 +68,14 @@
     <br>
     <div class="row">
       <div class="col-sm">
-      {% if len(condition) != 0 %}
-      <strong>Related conditions:</strong>
-      {% for i in range(0, len(condition)) %}{% if i == len(condition) - 1 %}{{condition[i]}}.{% else %}{{condition[i]}},
-      {% endif %}
-      {% endfor %}
-      {% endif %}
+        {% if len(condition) != 0 %}
+        <strong>Related conditions:</strong>
+        {% for i in range(0, len(condition)) %}{% if i == len(condition) - 1 %}{{condition[i]}}.{% else %}{{condition[i]}},
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+      </div>
     </div>
-    </div>
-
 
     <h2 class="result-titles" id="sub-freq">Substitutions and frequencies</h2>
     <hr>
@@ -244,33 +243,69 @@
     </table>
     <br>
     <p>Note: UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0
-      Structure only calcuate ∆∆G if the position is present on the pdb structure. PANDA and UEP only calculate ∆∆G if the secondary sequence is available.</p>
+      Structure only calculate ∆∆G if the position is present on the pdb structure. PANDA and UEP only calculate ∆∆G if
+      the secondary sequence is available.</p>
     {% endif %}
     {% if pdb != 'N/A' %}
 
     <h2 class="result-titles" id="protein-viewer">Protein viewer </h2>
     <hr>
     {% if ddgresults %}
-    <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple. Selecting another PDB
-      structure will recalculate ∆∆G.</p>
+    <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple and the interacting
+      protein ({{chain[3]}}) is shown in blue. Selecting another PDB structure will recalculate ∆∆G (only UEP and PANDA rely on an explicitly stated secondary protein). </p>
+
     <div>
       <form action="#" method="post">
-        {% for i in pdb %}
-        <input type="submit" class="btn btn-outline-dark" name="pdbselect" value={{i}}>
-        {% endfor %}
+        <div>
+          {% for i in pdb %}
+          <!-- <input type="submit" class="btn btn-outline-dark" name="pdbselect" value={{i}}> -->
+          {% if i == pdbselect %}
+          <input type="radio" id={{i}} name="pdbselect" value={{i}} checked>
+          <label for={{i}}>{{i}}</label>
+          {% if len(chain[2]) > 1 %}
+          (
+          {% for j in chain[2] %}
+          {% if j == chain[3] %}
+          <input type="radio" id={{i}} name="protselect" value={{j}} checked>
+          {% else %}
+          <input type="radio" id={{i}} name="protselect" value={{j}}>
+          {% endif %}
+          <label for={{j}}>{{j}}</label>
+          {% endfor %}
+          )
+          {% endif %}
+          {% else %}
+          <input type="radio" id={{i}} name="pdbselect" value={{i}}>
+          <label for={{i}}>{{i}}</label>
+          {% endif %}
+          <!-- <select>
+            {% for j in chain[2] %}
+            <option name= "protselect" value={{j}}>{{j}}</option>
+            {% endfor %}
+          </select> -->
+
+          {% endfor %}
+        </div>
+        <br>
+        <div>
+          <button type="submit" class="btn btn-primary">Recalculate ∆∆G</button>
+        </div>
+
       </form>
       <script src="https://cdn.rawgit.com/arose/ngl/v0.10.4-1/dist/ngl.js "></script>
       <script>
         var pdbfile = '{{ pdbselect }}';
         var rscb = "rcsb://";
         var input = rscb.concat(pdbfile);
-        var chain = ':{{chain}}';
+        var chain1 = ':{{chain[0]}}';
+        var chain2 = ':{{chain[1]}}';
         document.addEventListener("DOMContentLoaded", function () {
           var stage = new NGL.Stage("viewport", {
             backgroundColor: 'white'
           });
           var schemeId = NGL.ColormakerRegistry.addSelectionScheme([
-            ["purple", chain],
+            ["purple", chain1],
+            ["blue", chain2],
             ["grey", "*"]
           ])
           stage.loadFile(input).then(function (o) {
