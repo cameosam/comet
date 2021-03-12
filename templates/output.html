@@ -107,8 +107,8 @@
       of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
     <div class="left-box"><canvas id="pie1" width="20" height="10" class="left-graph"></canvas></div>
     <div class="right-box"><canvas id="pie2" width="20" height="10" class="right-graph"></canvas></div>
-    <p>From the 1000 Genomes Project, the {{ freq1000g[0] }} nuclotide has a frequency of {{freq1000g[3:]}}
-      and from the HapMap Project, the {{ freqhapmap[0] }} nuclotide has a frequency of {{ freqhapmap[3:] }}.</p>
+    <p>The {{ freq1000g[0] }} nuclotide has a frequency of {{freq1000g[3:]}} in the 1000 Genomes Project and a frequency
+      of {{ freqhapmap[3:] }} in the HapMap Project.</p>
     {% else %}
     <p>There are no nucleotide frequencies for this SNP from the 1000 Genomes Project or the HapMap Project.</p>
     {% endif %}
@@ -163,7 +163,7 @@
       });
       var fraction1 = parseFloat('{{ freq1000g[3:] }}')
       var fraction2 = parseFloat('{{ freqhapmap[3:] }}')
-      var colors = ['#5d1451', '#8D5A85'];
+      var colors = ['#97c1a9', '#c6dbda'];
       var pie1 = new Chart(document.getElementById("pie1"), {
         type: 'pie',
         data: {
@@ -207,14 +207,49 @@
     <h2 class="result-titles" id="bind-affinity">Change in binding affinity (∆∆G)</h2>
     <hr>
     {% if aa1 != 'N/A' %}
+
+    {% if ddgresults%}
+    {% if pdb != "N/A" %}
+    <p class="grey-border">Recalculate ∆∆G value with a different PDB structure or protein (if available). Only UEP and PANDA rely on
+      an explicitly stated secondary protein.</p>
+    <form action="#" method="post">
+      <div>
+        {% for i in pdb %}
+        {% if i == pdbselect %}
+        <input type="radio" id={{i}} name="pdbselect" value={{i}} checked>
+        <label for={{i}}>{{i}}</label>
+        {% if len(chain[2]) > 1 %}
+        (
+        {% for j in chain[2] %}
+        {% if j == chain[3] %}
+        <input type="radio" id={{i}} name="protselect" value={{j}} checked>
+        {% else %}
+        <input type="radio" id={{i}} name="protselect" value={{j}}>
+        {% endif %}
+        <label for={{j}}>{{j}}</label>
+        {% endfor %}
+        )
+        {% endif %}
+        {% else %}
+        <input type="radio" id={{i}} name="pdbselect" value={{i}}>
+        <label for={{i}}>{{i}}</label>
+        {% endif %}
+        {% endfor %}
+      </div>
+      <br>
+      <div>
+        <button type="submit" class="btn btn-primary" onclick="$('#loading').show();">Recalculate ∆∆G</button>
+      </div>
+    </form>
+    {% endif %}
+    {% else %}
     <p class="grey-border">Press the "Calculate ∆∆G" button to calculate the ∆∆G value using each predictor.</p>
     <form action="#" method="post">
-      <!-- <input type="submit" name="ddgcalc" value="wild" onclick="$('#loading').show();"> -->
       <input type="submit" class="btn btn-primary" name="ddgcalc" value="Calculate ∆∆G" onclick="$('#loading').show();">
     </form>
+    {% endif %}
     <div id="loading">
       <p>Loading ... </p>
-      <!-- <img src="static/loadingimage.gif" alt="loading"> -->
     </div>
     {% else %}
     <p class="grey-border">The ∆∆G value cannot be calculated as there is no known amino acid substitution. </p>
@@ -222,7 +257,11 @@
     {% if ddgresults %}
     <br>
     <table id="results" class="display">
-      <caption>∆∆G values calculated with {{pdbselect}} and {{aa1}}</caption>
+      {% if pdb != "N/A" %}
+      <caption>∆∆G values calculated with {{pdbselect}} and {{aa1}}.</caption>
+      {% else %}
+      <caption>∆∆G values calculated with {{aa1}} on the sequence (no PDB structure available).</caption>
+      {% endif %}
       <tr>
         <th id="program">Program</th>
         <th id="deltadeltaG">∆∆G (kcal/mol)</th>
@@ -251,47 +290,13 @@
     <h2 class="result-titles" id="protein-viewer">Protein viewer </h2>
     <hr>
     {% if ddgresults %}
+    {% if chain[3] != "N/A" %}
     <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple and the interacting
-      protein ({{chain[3]}}) is shown in blue. Selecting another PDB structure will recalculate ∆∆G (only UEP and PANDA rely on an explicitly stated secondary protein). </p>
-
+      protein ({{chain[3]}}) is shown in blue. </p>
+    {% else %}
+    <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple. </p>
+    {% endif %}
     <div>
-      <form action="#" method="post">
-        <div>
-          {% for i in pdb %}
-          <!-- <input type="submit" class="btn btn-outline-dark" name="pdbselect" value={{i}}> -->
-          {% if i == pdbselect %}
-          <input type="radio" id={{i}} name="pdbselect" value={{i}} checked>
-          <label for={{i}}>{{i}}</label>
-          {% if len(chain[2]) > 1 %}
-          (
-          {% for j in chain[2] %}
-          {% if j == chain[3] %}
-          <input type="radio" id={{i}} name="protselect" value={{j}} checked>
-          {% else %}
-          <input type="radio" id={{i}} name="protselect" value={{j}}>
-          {% endif %}
-          <label for={{j}}>{{j}}</label>
-          {% endfor %}
-          )
-          {% endif %}
-          {% else %}
-          <input type="radio" id={{i}} name="pdbselect" value={{i}}>
-          <label for={{i}}>{{i}}</label>
-          {% endif %}
-          <!-- <select>
-            {% for j in chain[2] %}
-            <option name= "protselect" value={{j}}>{{j}}</option>
-            {% endfor %}
-          </select> -->
-
-          {% endfor %}
-        </div>
-        <br>
-        <div>
-          <button type="submit" class="btn btn-primary">Recalculate ∆∆G</button>
-        </div>
-
-      </form>
       <script src="https://cdn.rawgit.com/arose/ngl/v0.10.4-1/dist/ngl.js "></script>
       <script>
         var pdbfile = '{{ pdbselect }}';

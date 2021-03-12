@@ -35,13 +35,10 @@ database = "./snp-db/snpDB_v2.pkl"
 @app.route("/")
 @app.route("/home")
 def index():
-    now = time.time()
-    files = [os.path.join(app.config['UPLOAD_FOLDER'], filename) for filename in os.listdir( app.config['UPLOAD_FOLDER'])]
-    for filename in files:
-        # automatic delete of upladed files after 24 hours
-        if (now - os.stat(filename).st_mtime) > (24 * 60 * 60):
-            command = "rm {0}".format(filename)
-            subprocess.call(command, shell=True)
+    uploadfiles = [os.path.join(app.config['UPLOAD_FOLDER'], filename) for filename in os.listdir( app.config['UPLOAD_FOLDER'])]
+    tmpfiles = [os.path.join('./prediction/tmp/', filename) for filename in os.listdir('./prediction/tmp/')]
+    deletefiles(uploadfiles)
+    deletefiles(tmpfiles)
     return render_template("index.html")
 
 @app.route("/about")
@@ -213,8 +210,8 @@ def output():
         gene_name, chromosome, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, first_aa = getsnpinfo(rsid) 
         condition = getclinvar(rsid)
         pdbs = findpdb(gene_name)
-        if pdbs != "N/A":
-            first_pdb = pdbs[0] if len(pdbs) > 1 else pdbs
+        if pdbs != "N/A" and len(pdbs) > 0:
+            first_pdb = pdbs[0]
         else:
             first_pdb = "N/A"
         session["output"] = [rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, condition]

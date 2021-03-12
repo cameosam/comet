@@ -21,6 +21,9 @@ def ddgcalcs(pdb, aasub, gene, protselect):
     uniprotcode = get_uniprot_code(gene)
     chain = "N/A"
     secondchain = "N/A"
+    currentprot = "N/A"
+    otherprot = "N/A"
+    print(pdb)
     if pdb != "N/A":
         # retrieve pdb file
         urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')

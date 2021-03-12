@@ -166,6 +166,9 @@ def getsequence(uniprotcode):
     cData = ''.join(response.text)
     Seq = StringIO(cData)
     pSeq = list(SeqIO.parse(Seq, 'fasta'))
+    print(currentUrl)
+    if pSeq == []:
+        return -1
     return str(pSeq[0].seq)
 
 def get_uniprot_code(gene):
@@ -180,3 +183,11 @@ def muteffect(ddg, posdes):
         return "Decrease in stability" if float(ddg) > 0.0 else "Increase in stability"
     else:
         return "Decrease in stability" if float(ddg) < 0.0 else "Increase in stability"
+
+def deletefiles(files):
+    now = time.time()
+    for filename in files:
+            # automatic delete of upladed files after 24 hours
+            if (now - os.stat(filename).st_mtime) > (24 * 60 * 60):
+                command = "rm {0}".format(filename)
+                subprocess.call(command, shell=True)
