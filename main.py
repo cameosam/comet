@@ -84,6 +84,13 @@ def input():
                                 temp[3] = temp[3] + temp[4]
                                 del temp[-1]
                                 rs_list.append(temp)
+                        # FamilyTree
+                        elif 'rs' in line and len(re.split(',', line.rstrip('\n'))) == 4:
+                            temp = re.split('","', line.rstrip('\n'))
+                            if temp[3][:-1] != "--":
+                                temp[0] = temp[0][1:]
+                                temp[3] = temp[3][:-1]
+                                rs_list.append(temp)
                 if len(rs_list) > 0:
                     rs_df = pd.DataFrame(rs_list,columns=['rsid','chr','pos','geno'])
                     rs_df.replace({'chr': {"23": "X", "24": "Y", "25": "Y", "26" : "MT"}})
