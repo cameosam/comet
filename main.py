@@ -215,7 +215,7 @@ def output():
         rsid = session["rsid"]
         genotype = session["genotype"]
         gene_name, chromosome, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, first_aa = getsnpinfo(rsid) 
-        condition = getclinvar(rsid)
+        condition = get_clinlitvar(rsid)
         pdbs = findpdb(gene_name)
         if pdbs != "N/A" and len(pdbs) > 0:
             first_pdb = pdbs[0]

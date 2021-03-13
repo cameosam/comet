@@ -93,7 +93,7 @@ def findpdb(gene):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'txt' and filename != ''
 
-def getclinvar(rsid):
+def get_clinlitvar(rsid):
     handle = Entrez.esearch(db="clinvar", term=rsid)
     record = Entrez.read(handle)
     conditions = []
@@ -104,7 +104,20 @@ def getclinvar(rsid):
             trait = record['DocumentSummarySet']['DocumentSummary'][0]['trait_set'][i]['trait_name']
             if "not" not in trait and trait not in conditions:
                 conditions.append(trait)
-    return conditions
+    
+    response = requests.get("https://www.ncbi.nlm.nih.gov/research/bionlp/litvar/api/v1/entity/litvar/"+rsid+"%23%23")
+    if response.text != "":
+        diseases = response.json()['diseases']
+        disease_name = []
+        disease_freq = []
+        for key, value in diseases.items():
+            disease_name.append(key.replace(",",";"))
+            disease_freq.append(value)
+    else:
+        disease_name = disease_freq = "N/A"
+    if disease_name == []:
+        disease_name = disease_freq = "N/A"
+    return [conditions, disease_name, disease_freq]
 
 def getsnpinfo(rsid):
     handle = Entrez.esummary(db="snp", term="[snp_id]", id=rsid[2:])

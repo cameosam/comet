@@ -36,7 +36,7 @@
     <h2 class="result-titles">{{snp}}</h2>
     <hr>
     <div class="row">
-      <div class="col-sm">
+      <div class="col">
         <table>
           <tr>
             <th class="info">Gene:</th>
@@ -54,37 +54,77 @@
           {% endif %}
         </table>
       </div>
-      <div class="col-sm">
-        <table>
-          <tr>
-            <th class="info" style="vertical-align: top;">Clinical significance:</th>
-            <td>{% for i in clin %}
-              {{i}} <br>
-              {% endfor %}</td>
-          </tr>
-        </table>
+      <div class="col">
+        <strong>Clinical significance:</strong>
+        {% for i in range(0, len(clin)) %}
+        {% if i == len(clin) - 1 %}{{clin[i]}}.
+        {% else %}{{clin[i]}},
+        {% endif %}
+        {% endfor %}
       </div>
-    </div>
-    <br>
-    <div class="row">
-      <div class="col-sm">
-        {% if len(condition) != 0 %}
-        <strong>Related conditions:</strong>
-        {% for i in range(0, len(condition)) %}{% if i == len(condition) - 1 %}{{condition[i]}}.{% else %}{{condition[i]}},
+      <div class="w-100"></div>
+      <div class="col">
+        {% if condition[1] != "N/A" %}
+        <!-- <strong>LitVar published literature per related disease:</strong> -->
+        <canvas id="litvar"></canvas>
+        {% endif %}
+      </div>
+      <div class="col">
+        {% if len(condition[0]) != 0 %}
+        <br>
+        <strong>ClinVar related conditions:</strong>
+        {% for i in range(0, len(condition[0])) %}
+        {% if i == len(condition[0]) - 1 %}{{condition[0][i]}}.
+        {% else %}{{condition[0][i]}},
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% if condition[1] != "N/A" %}
+        <p></p>
+        <p></p>
+        <strong>LitVar related diseases:</strong>
+        {% for i in range(0, len(condition[1])) %}
+        {% if i == len(condition[1]) - 1 %}
+        {{condition[1][i]}} ({{condition[2][i]}}).
+        {% else %}
+        {{condition[0][i]}} ({{condition[2][i]}}),
         {% endif %}
         {% endfor %}
         {% endif %}
       </div>
     </div>
+    <script>
+       var litvar = new Chart(document.getElementById("litvar"), {
+        type: 'pie',
+        data: {
+          labels: '{{condition[1]| tojson}}'.slice(1, -1).split(', '),
+          datasets: [{
+            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB","#FFBF91", "#FFFFB5", "#FCB9AA","#ECD5E3"
+            ],
+            data: '{{condition[2]| tojson}}'.slice(1, -1).split(', ')
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'LitVar published literature per related disease'
+          },
+          legend: {
+            position: 'left'
+          }
+        }
+      });
+    </script>
 
     <h2 class="result-titles" id="sub-freq">Substitutions and frequencies</h2>
     <hr>
-    <p class="grey-border">These polar area charts (which are similar to a pie chart but shows fractions in terms of
-      area rather than angle) represent the nucleotide and/or amino acid substiutions that are documented for this SNP.
-      The larger
-      values indicate the subsitutions that are more commonly associated with the given SNP.</p>
+    <p class="grey-border">These pie charts represent the nucleotide and/or amino acid substiutions that are documented for this SNP.
+      The larger values indicate the subsitutions that are more commonly associated with the given SNP.</p>
+      
     <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10"></canvas></div>
+    {% if aa1 != 'N/A' %}
     <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
+    {% endif %}
     <p>The nucleotide substitutions (with frequency) are
       {% for i in range(0, len(sorted_nuclist[0])) %}
       {% if i == len(sorted_nuclist[0]) - 1 %}
@@ -105,8 +145,10 @@
     <p class="grey-border">These pie charts represent the frequency of the nucleotide corresponding to the SNP
       compared to the frequency
       of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
+    
     <div class="left-box"><canvas id="pie1" width="20" height="10" class="left-graph"></canvas></div>
     <div class="right-box"><canvas id="pie2" width="20" height="10" class="right-graph"></canvas></div>
+   
     <p>The {{ freq1000g[0] }} nuclotide has a frequency of {{freq1000g[3:]}} in the 1000 Genomes Project and a frequency
       of {{ freqhapmap[3:] }} in the HapMap Project.</p>
     {% else %}
@@ -114,11 +156,11 @@
     {% endif %}
     <script>
       var chart1 = new Chart(document.getElementById("chart1"), {
-        type: 'polarArea',
+        type: 'pie',
         data: {
           labels: '{{sorted_nuclist[0]| tojson}}'.slice(1, -1).split(', '),
           datasets: [{
-            backgroundColor: ["#351f39", "#726a95", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
+            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB","#FFBF91", "#FFFFB5", "#FCB9AA","#ECD5E3","#719fb0", "#351f39", "#c7cfb7", "#9dad7f", "#557174",
               "#889bae"
             ],
             data: '{{sorted_nuclist[1]| tojson}}'.slice(1, -1).split(', ')
@@ -136,16 +178,16 @@
       });
       var aa_val = '{{sorted_aalist[1]| tojson}}'.slice(1, -1).split(', ')
       var aa_label = '{{sorted_aalist[0]| tojson}}'.slice(1, -1).split(', ')
-      if ('{{aa1}}' == 'N/A') {
-        aa_val = [0];
-        aa_label = ['N/A'];
-      }
+      // if ('{{aa1}}' == 'N/A') {
+      //   aa_val = [0];
+      //   aa_label = ['N/A'];
+      // }
       var chart2 = new Chart(document.getElementById("chart2"), {
-        type: 'polarArea',
+        type: 'pie',
         data: {
           labels: aa_label,
           datasets: [{
-            backgroundColor: ["#351f39", "#726a95", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
+            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA","#ECD5E3","#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
               "#889bae"
             ],
             data: aa_val
@@ -210,7 +252,8 @@
 
     {% if ddgresults%}
     {% if pdb != "N/A" %}
-    <p class="grey-border">Recalculate ∆∆G value with a different PDB structure or protein (if available). Only UEP and PANDA rely on
+    <p class="grey-border">Recalculate ∆∆G value with a different PDB structure or protein (if available). Only UEP and
+      PANDA rely on
       an explicitly stated secondary protein.</p>
     <form action="#" method="post">
       <div>
