@@ -166,17 +166,41 @@ def getsequence(uniprotcode):
     cData = ''.join(response.text)
     Seq = StringIO(cData)
     pSeq = list(SeqIO.parse(Seq, 'fasta'))
-    print(currentUrl)
-    if pSeq == []:
-        return -1
     return str(pSeq[0].seq)
 
-def get_uniprot_code(gene):
+def get_uniprot_code_ints(gene):
     baseUrl = "http://www.uniprot.org/uniprot/"
-    query = "?query=reviewed:yes+AND+gene_exact:"+gene+"+organism:9606&format=list"
+    # query = "?query=reviewed:yes+AND+gene_exact:"+gene+"+organism:9606&format=list"
+    query = "?query=reviewed:yes+AND+gene_exact:"+gene+"+organism:9606&columns=id,interactor&format=tab"  
     currentUrl = baseUrl+query
     response = requests.post(currentUrl)
-    return response.text.split("\n")[0]
+    response_vals = response.text.split("\n")[1]
+    code = response_vals.split("\t")[0]
+    interactors = response_vals.split("\t")[1]
+    interactors_list = []
+    if ";" in interactors:
+        for i in interactors.split("; "):
+            if i not in interactors_list:
+                interactors_list.append(i)
+    else:
+        interactors_list.append(interactors)
+    return code, interactors_list
+
+def get_uniprot_names(codes, protselect):
+    names = []
+    uniprotcode = "N/A"
+    for code in codes:
+        baseUrl = "http://www.uniprot.org/uniprot/"
+        query = "?query=reviewed:yes+id:"+code+"+organism:9606&columns=entry name&format=tab"  
+        currentUrl = baseUrl+query
+        response = requests.post(currentUrl)
+        if "Entry name" in response.text:
+            if response.text.split("\n")[1] == protselect:
+                uniprotcode = code
+            names.append(response.text.split("\n")[1])
+    if uniprotcode == "N/A":
+        uniprotcode = code
+    return names, uniprotcode
 
 def muteffect(ddg, posdes):
     if posdes == True:

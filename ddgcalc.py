@@ -18,12 +18,11 @@ def ddgcalcs(pdb, aasub, gene, protselect):
     position = int(aasub[3:-3])
 
     # retrieve sequence
-    uniprotcode = get_uniprot_code(gene)
-    chain = "N/A"
-    secondchain = "N/A"
+    uniprotcode, interactors = get_uniprot_code_ints(gene)
+    chain = "*"
+    secondchain = "*"
     currentprot = "N/A"
     otherprot = "N/A"
-    print(pdb)
     if pdb != "N/A":
         # retrieve pdb file
         urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')
@@ -34,12 +33,11 @@ def ddgcalcs(pdb, aasub, gene, protselect):
         for line in open('prediction/tmp/'+pdb+'.pdb'):
             listval = line.split()
             if listval[0] == 'DBREF':
-                if len(listval) == 10:
-                    # chain, pos1, uniprot, protein, pos2
-                    dbref.append(
-                        [listval[2], listval[3], listval[6], listval[7], listval[8]])
+                if len(listval) == 10 and listval[5] != 'PDB':
+                    # chain, pos1, uniprotcode, protein, pos2
+                    dbref.append([listval[2], listval[3], listval[6], listval[7], listval[8]])
                 else:
-                    # pos1, uniprot, protein, pos2
+                    # pos1, uniprotcode, protein, pos2
                     dbref.append([listval[2], listval[5], listval[6], listval[7]])
         for mol in dbref:
             if len(mol) == 5:
@@ -54,25 +52,28 @@ def ddgcalcs(pdb, aasub, gene, protselect):
                         if mol[3] == protselect:
                             currentprot = mol[3]
                             secondchain = mol[0]
-                            secounduniprotcode = mol[2]
+                            seconduniprotcode = mol[2]
                     else:
                         currentprot = mol[3]
                         secondchain = mol[0]
-                        secounduniprotcode = mol[2]
+                        seconduniprotcode = mol[2]
                 
             elif len(mol) < 5 and (gene in mol[2] or uniprotcode in mol[1]):
                 shift = int(mol[3]) - int(mol[0])
                 uniprotcode = mol[1]
+    if interactors != [''] and otherprot == []:
+        otherprot, seconduniprotcode = get_uniprot_names(interactors, protselect)
+    else:
+        seconduniprotcode = "N/A"
     sequence = getsequence(uniprotcode)
 
-    if pdb != "N/A" and chain != "N/A":
+    if pdb != "N/A" and chain != "*":
         # SAAMBE-3D calculation
         saambe_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
             cd prediction/saambe;\
             python Mutation_pred.py -i ../tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 1').decode("utf-8")
         saambe_val = saambe_out.split("\n")[1] if "\n" in saambe_out else 'N/A'
         saambe_eff = muteffect(saambe_val,True) if saambe_val != 'N/A' and muteffect(saambe_val,True) else 'N/A'
-    
         # imut2.0 struc calculation
         subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
             cd prediction/imutant;\
@@ -83,7 +84,7 @@ def ddgcalcs(pdb, aasub, gene, protselect):
         imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
         imut2_eff = muteffect(imut2_val,False) if imut2_val != 'N/A' and muteffect(imut2_val,False) else 'N/A'
         
-        if secondchain != "N/A":
+        if secondchain != "*":
             # UEP calculation
             os.system('cd prediction/uep; python3 UEP.py --pdb=../tmp/'+pdb +'.pdb --interface='+chain+','+secondchain)
             uep_file_path = 'prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv'
@@ -96,25 +97,28 @@ def ddgcalcs(pdb, aasub, gene, protselect):
             else:
                 uep_val = uep_eff = 'N/A'
             
-            # panda calculation
-            mutseq = "'" + sequence[:position-1] + mutant + sequence[position:] + "'"
-            sequence = "'" + sequence[:position-1] + wild + sequence[position:] + "'"
-            secondseq = "'" + getsequence(secounduniprotcode) + "'"
-            panda_output = subprocess_cmd('cd prediction/panda;\
-                (echo "from panda import *"; echo "print(predict_affinity('+secondseq+','+sequence+','+secondseq+','+mutseq+'))") | python')
-            panda_val = panda_output.decode("utf-8") 
-            if panda_val != "0":
-                panda_val = panda_output.decode("utf-8")[1:-1]
-            panda_eff = muteffect(panda_val,False) if panda_val != 'N/A' and muteffect(panda_val,False) else 'N/A'
         else:
-            uep_val = uep_eff = panda_val = panda_eff = 'N/A'
+            uep_val = uep_eff = 'N/A'
         # get rid of files
         os.remove('prediction/tmp/'+pdb+'.pdb')
         os.remove('prediction/tmp/'+pdb+'.dssp')
-        os.remove('prediction/tmp/sequence.seq')
     else:
-        saambe_val = saambe_eff = imut2_val = imut2_eff = uep_val = uep_eff = panda_val = panda_eff = chain = 'N/A'
-        
+        saambe_val = saambe_eff = imut2_val = imut2_eff = uep_val = uep_eff = 'N/A'
+    
+    if seconduniprotcode != "N/A":
+        # panda calculation
+        mutseq = "'" + sequence[:position-1] + mutant + sequence[position:] + "'"
+        sequence = "'" + sequence[:position-1] + wild + sequence[position:] + "'"
+        secondseq = "'" + getsequence(seconduniprotcode) + "'"
+        panda_output = subprocess_cmd('cd prediction/panda;\
+            (echo "from panda import *"; echo "print(predict_affinity('+secondseq+','+sequence+','+secondseq+','+mutseq+'))") | python')
+        panda_val = panda_output.decode("utf-8") 
+        if panda_val != "0":
+            panda_val = panda_output.decode("utf-8")[1:-1]
+        panda_eff = muteffect(panda_val,False) if panda_val != 'N/A' and muteffect(panda_val,False) else 'N/A'
+    else:
+        panda_val = panda_eff = 'N/A'
+
     # imut2.0 seq calculation
     with open("prediction/tmp/sequence.seq", "w") as text_file:
         text_file.write(sequence)
@@ -127,6 +131,7 @@ def ddgcalcs(pdb, aasub, gene, protselect):
     else:
         imut2_seq_val ='N/A'
     imut2_seq_eff = muteffect(imut2_seq_val,False) if  imut2_seq_val != 'N/A' and muteffect(imut2_seq_val,False) else 'N/A'
+    os.remove('prediction/tmp/sequence.seq')
 
     # Consensus
     increase = len(list(filter(lambda x: x == "Increase in stability", [saambe_eff, imut2_eff, imut2_seq_eff, panda_eff, uep_eff])))

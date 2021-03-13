@@ -289,7 +289,7 @@
 
     <h2 class="result-titles" id="protein-viewer">Protein viewer </h2>
     <hr>
-    {% if ddgresults %}
+    {% if ddgresults and chain[0] != "*" %}
     {% if chain[3] != "N/A" %}
     <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple and the interacting
       protein ({{chain[3]}}) is shown in blue. </p>
@@ -324,7 +324,7 @@
       <div id="viewport"></div>
     </div>
     {% else %}
-    <p class="grey-border">Calculate ∆∆G to view protein structure.</p>
+    <p class="grey-border">Calculate (or recalculate) ∆∆G to view protein structure.</p>
     {% endif %}
     {% endif %}
   </div>
