@@ -2,9 +2,11 @@
     %}
 <div class="container">
     <h1>Step 1: Upload a genotype file</h1>
+    <p></p>
+    <h4>DISCLAIMER: COMET should not be used as a diagnostic tool or as a substitute for professional medical advice.</h4>
     <div class="grey-border">
         <p>This is a <strong>raw genotype text (.txt) file </strong> from a direct-to-consumer (DTC) genetic test. This application currently only supports files from 23andMe, AncestryDNA, and FamilyTreeDNA.</p>
-        <p><strong>When you are finished using this application, please click End Session </strong> (the red button located in the top right corner) to automatically delete all files and session data.</p>
+        <p>All uploaded files will be automatically deleted after 24 hours. However, the clicking the button <strong> End Session </strong> (the red button located in the top right corner) will automatically delete all files and session data right away.</p>
     </div>
     <form method=post enctype=multipart/form-data> 
         <label for="uploadfile">Raw genotype file:</label>
@@ -17,9 +19,9 @@
         {% endif %}
     </div>
     <hr>
-    <h1>or browse non-synonymous SNPs:</h1>
+    <h1>or browse nonsynonymous SNPs:</h1>
     <div class="grey-border">
-        <p>This option shows the non-synonymous SNPs currently in the database. This does not require any file input. The database was created by analyzing SNPs in 2020+ raw genotype files from 23andMe, AncestryDNA, and FamilyTreeDNA.</p>
+        <p>This option shows the nonsynonymous SNPs currently in the database. This does not require any file input. The database was created by analyzing SNPs in 2020+ raw genotype files from 23andMe, AncestryDNA, and FamilyTreeDNA.</p>
     </div>
     <input id="browse" type="button" class="btn btn-primary" onClick="location.href='/select'" value="Browse" />
     

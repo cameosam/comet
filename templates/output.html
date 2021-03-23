@@ -24,7 +24,10 @@
       </div>
       <div class="col jumpto">
         <p></p>
-        <p>Jump to:</p>
+        <p>On this page:</p>
+        {% if condition[1] != "N/A" %}
+        <a href="#conds">Related conditions and diseases</a><br>
+        {% endif %}
         <a href="#sub-freq">Substitutions and frequencies</a><br>
         <a href="#bind-affinity">Change in binding affinity (∆∆G)</a><br>
         {% if pdb != 'N/A' %}
@@ -48,7 +51,7 @@
           </tr>
           {% if genotype != "N/A" and genotype != "undefined" %}
           <tr>
-            <th class="info">Genotype:</th>
+            <th class="info">Your Genotype:</th>
             <td>{{genotype}}</td>
           </tr>
           {% endif %}
@@ -61,11 +64,24 @@
         {% else %}{{clin[i]}},
         {% endif %}
         {% endfor %}
+        <p></p>
+        <p></p>
+        {% if genotype != "N/A" and genotype != "undefined" %}
+        <p><strong>Summary: </strong>Your genotype contains {{summary[0]}} nucleotide substitution(s) associated with
+          this SNP. {% if summary[1] != -1 and summary[2] != False %} The nucleotide in your genotype is only present in
+          {{summary[1]}}% of people. </p>
+        {% endif %}
+        {% endif %}
       </div>
-      <div class="w-100"></div>
+      <!-- <div class="w-100"></div> -->
+    </div>
+    {% if condition[1] != "N/A" or len(condition[0]) != 0 %}
+    <h2 class="result-titles" id="conds">Related conditions and diseases</h2>
+    <hr>
+    {% endif %}
+    <div class="row">
       <div class="col">
         {% if condition[1] != "N/A" %}
-        <!-- <strong>LitVar published literature per related disease:</strong> -->
         <canvas id="litvar"></canvas>
         {% endif %}
       </div>
@@ -87,19 +103,20 @@
         {% if i == len(condition[1]) - 1 %}
         {{condition[1][i]}} ({{condition[2][i]}}).
         {% else %}
-        {{condition[0][i]}} ({{condition[2][i]}}),
+        {{condition[1][i]}} ({{condition[2][i]}}),
         {% endif %}
         {% endfor %}
         {% endif %}
       </div>
     </div>
     <script>
-       var litvar = new Chart(document.getElementById("litvar"), {
+      var litvar = new Chart(document.getElementById("litvar"), {
         type: 'pie',
         data: {
           labels: '{{condition[1]| tojson}}'.slice(1, -1).split(', '),
           datasets: [{
-            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB","#FFBF91", "#FFFFB5", "#FCB9AA","#ECD5E3"
+            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
+              "#ECD5E3"
             ],
             data: '{{condition[2]| tojson}}'.slice(1, -1).split(', ')
           }]
@@ -118,13 +135,13 @@
 
     <h2 class="result-titles" id="sub-freq">Substitutions and frequencies</h2>
     <hr>
-    <p class="grey-border">These pie charts represent the nucleotide and/or amino acid substiutions that are documented for this SNP.
+    <p class="grey-border">These pie charts represent the nucleotide and/or amino acid substiutions that are
+      documented for this SNP.
       The larger values indicate the subsitutions that are more commonly associated with the given SNP.</p>
-      
+
     <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10"></canvas></div>
-    {% if aa1 != 'N/A' %}
     <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
-    {% endif %}
+
     <p>The nucleotide substitutions (with frequency) are
       {% for i in range(0, len(sorted_nuclist[0])) %}
       {% if i == len(sorted_nuclist[0]) - 1 %}
@@ -133,24 +150,38 @@
       {{sorted_nuclist[0][i]}} ({{sorted_nuclist[1][i]}}),
       {% endif %}
       {% endfor %}
+      {% if aa1 == 'N/A' %}
+      There are no known amino acid substitutions.
+      {% else %}
       The amino acid substitutions (with frequency) are
       {% for i in range(0, len(sorted_aalist[0])) %}
-      {% if i == len(sorted_nuclist[0]) - 1 %}
+      {% if i == len(sorted_aalist[0]) - 1 %}
       {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}).
       {% else %}
       {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}),
       {% endif %}
-      {% endfor %}</p>
-    {% if freq1000g != 'N/A' and freqhapmap != 'N/A' %}
+      {% endfor %}
+      {% endif %}
+    </p>
+    {% if freq1000g != 'N/A' or freqhapmap != 'N/A' %}
     <p class="grey-border">These pie charts represent the frequency of the nucleotide corresponding to the SNP
       compared to the frequency
       of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
-    
-    <div class="left-box"><canvas id="pie1" width="20" height="10" class="left-graph"></canvas></div>
-    <div class="right-box"><canvas id="pie2" width="20" height="10" class="right-graph"></canvas></div>
-   
-    <p>The {{ freq1000g[0] }} nuclotide has a frequency of {{freq1000g[3:]}} in the 1000 Genomes Project and a frequency
-      of {{ freqhapmap[3:] }} in the HapMap Project.</p>
+    <div class="row">
+      <div class="col">
+        {% if freq1000g != 'N/A' %}
+        <canvas id="pie1"></canvas>
+        {% endif %}
+      </div>
+      <div class="col">
+        {% if freqhapmap != 'N/A' %}
+        <canvas id="pie2"></canvas>
+        {% endif %}
+      </div>
+    </div>
+    <br>
+    <p>{% if freq1000g != 'N/A' %}The {{ freq1000g[0] }} nucleotide has a frequency of {{freq1000g[3:]}} in the 1000 Genomes Project. {% endif %}{% if freqhapmap != 'N/A' %}The {{ freqhapmap[0] }} nucleotide has a 
+      frequency of {{ freqhapmap[3:] }} in the HapMap Project.{% endif %}</p>
     {% else %}
     <p>There are no nucleotide frequencies for this SNP from the 1000 Genomes Project or the HapMap Project.</p>
     {% endif %}
@@ -160,7 +191,8 @@
         data: {
           labels: '{{sorted_nuclist[0]| tojson}}'.slice(1, -1).split(', '),
           datasets: [{
-            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB","#FFBF91", "#FFFFB5", "#FCB9AA","#ECD5E3","#719fb0", "#351f39", "#c7cfb7", "#9dad7f", "#557174",
+            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
+              "#ECD5E3", "#719fb0", "#351f39", "#c7cfb7", "#9dad7f", "#557174",
               "#889bae"
             ],
             data: '{{sorted_nuclist[1]| tojson}}'.slice(1, -1).split(', ')
@@ -178,16 +210,17 @@
       });
       var aa_val = '{{sorted_aalist[1]| tojson}}'.slice(1, -1).split(', ')
       var aa_label = '{{sorted_aalist[0]| tojson}}'.slice(1, -1).split(', ')
-      // if ('{{aa1}}' == 'N/A') {
-      //   aa_val = [0];
-      //   aa_label = ['N/A'];
-      // }
+      if ('{{aa1}}' == 'N/A') {
+        aa_val = [0];
+        aa_label = ['N/A'];
+      }
       var chart2 = new Chart(document.getElementById("chart2"), {
         type: 'pie',
         data: {
           labels: aa_label,
           datasets: [{
-            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA","#ECD5E3","#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
+            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
+              "#ECD5E3", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
               "#889bae"
             ],
             data: aa_val
@@ -252,7 +285,8 @@
 
     {% if ddgresults%}
     {% if pdb != "N/A" %}
-    <p class="grey-border">Recalculate ∆∆G value with a different PDB structure or protein (if available). Only UEP and
+    <p class="grey-border">Recalculate ∆∆G value with a different PDB structure or protein (if available). Only UEP
+      and
       PANDA rely on
       an explicitly stated secondary protein.</p>
     <form action="#" method="post">
@@ -295,7 +329,7 @@
       <p>Loading ... </p>
     </div>
     {% else %}
-    <p class="grey-border">The ∆∆G value cannot be calculated as there is no known amino acid substitution. </p>
+    <p class="grey-border">The ∆∆G value cannot be calculated as there are no known amino acid substitutions. </p>
     {% endif %}
     {% if ddgresults %}
     <br>
@@ -325,7 +359,8 @@
     </table>
     <br>
     <p>Note: UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0
-      Structure only calculate ∆∆G if the position is present on the pdb structure. PANDA and UEP only calculate ∆∆G if
+      Structure only calculate ∆∆G if the position is present on the pdb structure. PANDA and UEP only calculate ∆∆G
+      if
       the secondary sequence is available.</p>
     {% endif %}
     {% if pdb != 'N/A' %}

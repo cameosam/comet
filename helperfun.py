@@ -136,7 +136,7 @@ def getsnpinfo(rsid):
     first_aa = []
     entries = docsum.split(",")
     for i in entries:
-        if ">" in i[-3:] and i[-3:] not in nuclist:
+        if "NR" not in i and ">" in i[-3:] and i[-3:] not in nuclist:
             nuclist.append(i[-3:])
         if "p." in i and (i.partition("p.")[2] not in aalist and len(i.partition("p.")[2]) < 10):
             aalist.append(i.partition("p.")[2])
@@ -228,3 +228,34 @@ def deletefiles(files):
             if (now - os.stat(filename).st_mtime) > (24 * 60 * 60):
                 command = "rm {0}".format(filename)
                 subprocess.call(command, shell=True)
+
+def comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm):
+    mutlist = []
+    count = 0
+    if len(genotype) > 1:
+        for i in range(len(sorted_nuclist[0])):
+            mutlist.append(sorted_nuclist[0][i][2])
+        if genotype[0] in mutlist:
+            count += 1
+        if genotype[0] in mutlist:
+             count += 1
+    else:
+        for i in range(len(sorted_nuclist[0])):
+            mutlist.append(sorted_nuclist[0][i][2])
+        if genotype in mutlist:
+            count -= 1
+
+    if freq_kg != 'N/A' and freq_hm != 'N/A':
+        avg_freq =  round((float(freq_kg[3:]) + float(freq_hm[3:]))/2*100,2)
+    elif freq_kg != 'N/A':
+        avg_freq = round(float(freq_kg[3:])*100,2)
+    elif freq_hm != 'N/A':
+        avg_freq = round(float(freq_hm[3:])*100,2)
+    else:
+        avg_freq = -1
+    same = False
+    if avg_freq != -1:
+        if freq_kg[0] in genotype or freq_hm[0] in genotype:
+            same = True
+
+    return [count,avg_freq, same]
