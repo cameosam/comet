@@ -50,6 +50,7 @@ def endsession():
     if session.get("file") != None:
         if session["file"] != "N/A":
             os.remove('uploads/'+session["file"]+'.pkl')
+            os.remove('uploads/'+session["file"]+'unfiltered.pkl')
             [session.pop(key) for key in list(session.keys())]
             flash('Thanks for using COMET. All session data and files have been deleted.')
         else:
@@ -84,7 +85,7 @@ def input():
                                 temp[3] = temp[3] + temp[4]
                                 del temp[-1]
                                 rs_list.append(temp)
-                        # FamilyTree
+                        # MyHeritage
                         elif 'rs' in line and len(re.split(',', line.rstrip('\n'))) == 4:
                             temp = re.split('","', line.rstrip('\n'))
                             if temp[3][:-1] != "--":
@@ -108,7 +109,6 @@ def input():
                     return render_template("input.html", error = "Error: File could not be parsed. Please check that this is a raw genotype file.")
             else:
                 return render_template("input.html", error = "Error: Incorrect file type. Please upload a .txt file.")
-
     else:
         return render_template("input.html")
 
@@ -154,34 +154,33 @@ def index_get_data():
 
 @app.route('/nextsnp')
 def next_snp():
-    if session["file"] != "N/A":
-        filename = "./uploads/"+session["file"]+".pkl"
-    else:
-        filename = database
+    filename = session["file"]
+    if "turnoffdb" in session:
+        filename = filename+"unfiltered"
+    filename = "./uploads/"+filename+".pkl" if filename != "N/A" else database
     curr_snp = session["rsid"]
     rs_df = pd.read_pickle(filename)
     index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
     if index == len(rs_df)-1:
         index = 0
     session["rsid"] = rs_df.loc[rs_df.index[index+1], 'rsid']
-    if session["file"] != "N/A":
+    if 'geno' in rs_df.columns:
         session["genotype"] = rs_df.loc[rs_df.index[index+1], 'geno']
     return redirect(url_for("output"))
 
 @app.route('/prevsnp')
 def prev_snp():
-    if session["file"] != "N/A":
-        filename = "./uploads/"+session["file"]+".pkl"
-    else:
-        filename = database
+    filename = session["file"]
+    if "turnoffdb" in session:
+        filename = filename+"unfiltered"
+    filename = "./uploads/"+filename+".pkl" if filename != "N/A" else database
     curr_snp = session["rsid"]
-
     rs_df = pd.read_pickle(filename)
     index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
     if index == 0:
         index = len(rs_df)-1
     session["rsid"] = rs_df.loc[rs_df.index[index-1], 'rsid']
-    if session["file"] != "N/A":
+    if 'geno' in rs_df.columns:
         session["genotype"] = rs_df.loc[rs_df.index[index-1], 'geno']
     return redirect(url_for("output"))
 
@@ -216,13 +215,13 @@ def output():
         genotype = session["genotype"]
         gene_name, chromosome, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, first_aa = getsnpinfo(rsid) 
         summary = comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm)
-        print(summary)
         condition = get_clinlitvar(rsid)
         pdbs = findpdb(gene_name)
         if pdbs != "N/A" and len(pdbs) > 0:
             first_pdb = pdbs[0]
         else:
             first_pdb = "N/A"
+        print(freq_kg, freq_hm)
         session["output"] = [rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, condition, summary]
         return render_template("output.html", snp=rsid, genotype= genotype,gene=gene_name,
                                chr=chromosome, pdb=pdbs, pdbselect=first_pdb,

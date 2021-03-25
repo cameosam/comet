@@ -50,9 +50,7 @@
           {% if genotype != "N/A" and genotype != "undefined" %}
           <p></p>
           <p><strong>Your Genotype: </strong>{{genotype}}</p>
-
           {% endif %}
-
         </div>
         <div class="col">
           <strong>Clinical significance:</strong>
@@ -75,9 +73,7 @@
             stability.{% endif %}{% if ddgresults[len(ddgresults)-1][2] == "No change in stability" %}The amino acid
             substitution associated with this SNP has an inconclusive change in stability.{% endif %}</p>
           {% endif %}
-
         </div>
-        <!-- <div class="w-100"></div> -->
       </div>
     </div>
     <script>
@@ -101,10 +97,9 @@
     <div class="row">
       <div class="col">
         {% if condition[1] != "N/A" %}
-        <canvas id="litvar"></canvas>
+        <canvas id="litvar" class="left-graph" width="20" height="10"></canvas>
         {% endif %}
       </div>
-
       <div class="col">
         <div id="printme2">
           {% if len(condition[0]) != 0 %}
@@ -156,10 +151,9 @@
 
     <h2 class="result-titles" id="sub">Substitutions</h2>
     <hr>
-    <p class="grey-border">These pie charts represent the nucleotide and/or amino acid substiutions that are
-      documented for this SNP.
-      The larger values indicate the subsitutions that are more commonly associated with the given SNP.</p>
-
+    <p class="grey-border">These pie chart(s) represent the nucleotide and/or amino acid substiutions that are
+      documented for this SNP. The larger values indicate the subsitutions that are more commonly associated with the
+      given SNP.</p>
     <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10"></canvas></div>
     <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
 
@@ -187,16 +181,11 @@
     {% if freq1000g != 'N/A' or freqhapmap != 'N/A' %}
     <h2 class="result-titles" id="freq">Frequencies</h2>
     <hr>
-    <p class="grey-border">These pie charts represent the frequency of the nucleotide corresponding to the SNP
+    <p class="grey-border">These pie chart(s) represent the frequency of the nucleotide corresponding to the SNP
       compared to the frequency
       of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
-    <div class="left-box">
-      <canvas id="pie1" class="left-graph" width="20" height="10"></canvas>
-    </div>
-
-    <div class="right-box">
-      <canvas id="pie2" class="right-graph" width="20" height="10"></canvas>
-    </div>
+    <div class="left-box"><canvas id="pie1" class="left-graph" width="20" height="10"></canvas></div>
+    <div class="right-box"><canvas id="pie2" class="right-graph" width="20" height="10"></canvas></div>
     <br>
     <p>{% if freq1000g != 'N/A' %}The {{ freq1000g[0]}} nucleotide has a frequency of
       {{round(float(freq1000g[3:])*100,2)}}% in the 1000
@@ -231,8 +220,8 @@
       var aa_val = '{{sorted_aalist[1]| tojson}}'.slice(1, -1).split(', ')
       var aa_label = '{{sorted_aalist[0]| tojson}}'.slice(1, -1).split(', ')
       if ('{{aa1}}' == 'N/A') {
-        aa_val = [0];
-        aa_label = ['N/A'];
+        aa_val = 'N/A';
+        aa_label = 'N/A';
       }
       var chart2 = new Chart(document.getElementById("chart2"), {
         type: 'pie',
@@ -257,15 +246,27 @@
         }
       });
       var fraction1 = parseFloat('{{ freq1000g[3:] }}')
+      var fracs1 = [fraction1, 1 - fraction1]
+      var labels1 = ['{{ freq1000g[0] }}', "Other"]
       var fraction2 = parseFloat('{{ freqhapmap[3:] }}')
+      var fracs2 = [fraction2, 1 - fraction2]
+      var labels2 = ['{{ freqhapmap[0] }}', "Other"]
+      if ('{{freq1000g}}' == 'N/A') {
+        fracs1 = 'N/A';
+        labels1 = 'N/A';
+      }
+      if ('{{freqhapmap}}' == 'N/A') {
+        fracs2 = 'N/A';
+        labels2 = 'N/A';
+      }
       var colors = ['#97c1a9', '#c6dbda'];
       var pie1 = new Chart(document.getElementById("pie1"), {
         type: 'pie',
         data: {
-          labels: ['{{ freq1000g[0] }}', "Other"],
+          labels: labels1,
           datasets: [{
             backgroundColor: colors,
-            data: [fraction1, 1 - fraction1]
+            data: fracs1
           }]
         },
         options: {
@@ -281,10 +282,10 @@
       var pie2 = new Chart(document.getElementById("pie2"), {
         type: 'pie',
         data: {
-          labels: ['{{ freqhapmap[0] }}', "Other"],
+          labels: labels1,
           datasets: [{
             backgroundColor: colors,
-            data: [fraction2, 1 - fraction2]
+            data: fracs2
           }]
         },
         options: {

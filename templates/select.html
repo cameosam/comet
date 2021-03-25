@@ -16,7 +16,7 @@
             <input type="submit" class="btn btn-secondary" name="turnoff" value="Turn off database filtering" onclick="$('#loading').show();">
         </form>
         {% elif  dboff == 1 %}
-        <p>Click the Analyze button of the SNP you are interested in. All SNPs in raw genotype file (except internal SNPs and mitochondrial DNA SNPs) are shown. Only non-synonymous SNPs that are present in COMET's database have a corresponding substitution and gene.</p>
+        <p>Click the Analyze button of the SNP you are interested in. All SNPs in raw genotype file (except internal SNPs and mitochondrial DNA SNPs) are shown. Only non-synonymous SNPs that are present in COMET's database have a corresponding substitution, gene, and frequency.</p>
         <form action="#" method="post">
             <input type="submit" class="btn btn-secondary" name="turnon" value="Turn on database filtering" onclick="$('#loading').show();">
         </form>

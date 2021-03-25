@@ -17,29 +17,6 @@ def subprocess_cmd(command):
     process = subprocess.Popen(command,stdout=subprocess.PIPE, shell=True)
     proc_stdout = process.communicate()[0].strip()
     return (proc_stdout)
-
-def parse_df(filename, chrom):
-    rslist = []
-    rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
-    chr_df = pd.read_pickle("./miss_chr1.pkl")
-    for i in range(len(rs_df)):
-        if rs_df.at[i,'rsid'] in chr_df[1].values:
-            index_val = chr_df[chr_df[1]==rs_df.at[i,'rsid']].index.values
-            rslist.append(list(rs_df.iloc[i,:].append(chr_df[2][index_val])))
-    return rslist
-
-def is_missense(snp_info):
-    if snp_info[1] in ["1","2","3","4","5","6","7","8"]:
-        if snp_info[3] != "--":
-            chr_df = pd.read_pickle("./missense-db/miss_chr"+snp_info[1]+".pkl")
-            if snp_info[0] in chr_df[1].values:
-                return (chr_df.loc[chr_df[1] == snp_info[0], 2].item())
-            else:
-                return False
-        else:
-            return False       
-    else:
-        return False
     
 def findpdb(gene):
     params = {
@@ -129,7 +106,6 @@ def getsnpinfo(rsid):
     docsum = record['DOCSUM']
     clinical = record['CLINICAL_SIGNIFICANCE'] if record['CLINICAL_SIGNIFICANCE'] !=  '' else "N/A"
     clinical = clinical.replace("-"," ").split(",")
-    print(record['CLINICAL_SIGNIFICANCE'], clinical)
     # substitutions
     nuclist = []
     aalist = []
@@ -156,7 +132,6 @@ def getsnpinfo(rsid):
         zipped_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
         sorted_nuclist = [[i[0] for i in zipped_nuclist],[i[1] for i in zipped_nuclist]]
         sorted_aalist = first_aa = 'N/A'
-
 
     # minor allele frequency
     maf = record['GLOBAL_MAFS']
@@ -243,17 +218,22 @@ def comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm):
         if genotype in mutlist:
             count -= 1
 
-    if freq_kg != 'N/A' and freq_hm != 'N/A':
-        avg_freq =  round((float(freq_kg[3:]) + float(freq_hm[3:]))/2*100,2)
-    elif freq_kg != 'N/A':
-        avg_freq = round(float(freq_kg[3:])*100,2)
-    elif freq_hm != 'N/A':
-        avg_freq = round(float(freq_hm[3:])*100,2)
+    if 'N/A' not in freq_kg and 'N/A' not in freq_hm:
+        try:
+            avg_freq = round((float(freq_kg[3:]) + float(freq_hm[3:]))/2*100,2)
+        except ValueError:
+            avg_freq = -1
+    elif 'N/A' not in freq_kg:
+        try:
+            avg_freq = round(float(freq_kg[3:])*100,2)
+        except ValueError:
+            avg_freq = -1
+    elif 'N/A' not in freq_hm:
+        try:
+            avg_freq = round(float(freq_hm[3:])*100,2)
+        except ValueError:
+            avg_freq = -1
     else:
         avg_freq = -1
-    # same = False
-    # if avg_freq != -1:
-    #     if freq_kg[0] in genotype or freq_hm[0] in genotype:
-    #         same = True
 
     return [count, avg_freq]

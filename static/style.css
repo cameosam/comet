@@ -40,13 +40,12 @@ body {
 }
 
 .footer {
-    text-align: center;
     margin-top: 50px;
-    padding: 20px 0 100px 0;
+    padding: 30px 0 50px 50px;
     height: 50px;
     background-color: #f1f6f9;
     border-style: solid;
-    border-width: 1px 0 0 0;
+    border-width: 1px 0 0 0; 
     border-color: #d8dde0;
 }
 
@@ -89,7 +88,8 @@ body {
 
 .jumbotron {
     text-align: center;
-    background-color: #E8ECEB;
+    /* background-color: #E8ECEB; */
+    background-color: #f1f6f9;
     padding: 150px;
 }
 
