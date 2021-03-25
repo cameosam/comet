@@ -129,14 +129,14 @@ def getsnpinfo(rsid):
     docsum = record['DOCSUM']
     clinical = record['CLINICAL_SIGNIFICANCE'] if record['CLINICAL_SIGNIFICANCE'] !=  '' else "N/A"
     clinical = clinical.replace("-"," ").split(",")
-
+    print(record['CLINICAL_SIGNIFICANCE'], clinical)
     # substitutions
     nuclist = []
     aalist = []
     first_aa = []
     entries = docsum.split(",")
     for i in entries:
-        if "NR" not in i and ">" in i[-3:] and i[-3:] not in nuclist:
+        if any(x in i for x in ["AC","NC","NG","NT","NW","NZ"]) and ">" in i[-3:] and i[-3:] not in nuclist:
             nuclist.append(i[-3:])
         if "p." in i and (i.partition("p.")[2] not in aalist and len(i.partition("p.")[2]) < 10):
             aalist.append(i.partition("p.")[2])
@@ -152,8 +152,6 @@ def getsnpinfo(rsid):
         first_aa = zipped_aalist[0][0]
         sorted_nuclist = [[i[0] for i in zipped_nuclist],[i[1] for i in zipped_nuclist]]
         sorted_aalist = [[i[0] for i in zipped_aalist],[i[1] for i in zipped_aalist]]
-
-        # subs = [[i[0] for i in sorted_nuclist],[i[1] for i in sorted_nuclist], [i[0] for i in sorted_aalist],[i[1] for i in sorted_aalist]]
     else:
         zipped_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
         sorted_nuclist = [[i[0] for i in zipped_nuclist],[i[1] for i in zipped_nuclist]]
@@ -237,7 +235,7 @@ def comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm):
             mutlist.append(sorted_nuclist[0][i][2])
         if genotype[0] in mutlist:
             count += 1
-        if genotype[0] in mutlist:
+        if genotype[1] in mutlist:
              count += 1
     else:
         for i in range(len(sorted_nuclist[0])):
@@ -253,9 +251,9 @@ def comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm):
         avg_freq = round(float(freq_hm[3:])*100,2)
     else:
         avg_freq = -1
-    same = False
-    if avg_freq != -1:
-        if freq_kg[0] in genotype or freq_hm[0] in genotype:
-            same = True
+    # same = False
+    # if avg_freq != -1:
+    #     if freq_kg[0] in genotype or freq_hm[0] in genotype:
+    #         same = True
 
-    return [count,avg_freq, same]
+    return [count, avg_freq]

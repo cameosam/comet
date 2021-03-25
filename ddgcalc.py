@@ -61,8 +61,8 @@ def ddgcalcs(pdb, aasub, gene, protselect):
             elif len(mol) < 5 and (gene in mol[2] or uniprotcode in mol[1]):
                 shift = int(mol[3]) - int(mol[0])
                 uniprotcode = mol[1]
-    if interactors != [''] and otherprot == []:
-        otherprot, seconduniprotcode = get_uniprot_names(interactors, protselect)
+        if interactors != [''] and otherprot == []:
+            otherprot, seconduniprotcode = get_uniprot_names(interactors, protselect)
     else:
         seconduniprotcode = "N/A"
     sequence = getsequence(uniprotcode)
@@ -104,7 +104,6 @@ def ddgcalcs(pdb, aasub, gene, protselect):
         os.remove('prediction/tmp/'+pdb+'.dssp')
     else:
         saambe_val = saambe_eff = imut2_val = imut2_eff = uep_val = uep_eff = 'N/A'
-    
     if seconduniprotcode != "N/A":
         # panda calculation
         mutseq = "'" + sequence[:position-1] + mutant + sequence[position:] + "'"

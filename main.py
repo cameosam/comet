@@ -20,7 +20,7 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 30
 app.config['UPLOAD_FOLDER'] = './uploads/'
 app.config['SECRET_KEY'] = "supersecretkey_MUSTBECHANGED!"
 app.config['SESSION_PERMANENT'] = True
-database = "./snp-db/snpDB_v4.pkl"
+database = "./snp-db/snpDB_v5.pkl"
 
 # Add server-side sessionsß
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=5)
@@ -136,17 +136,17 @@ def index_get_data():
         filename = session["file"]
         if "turnoffdb" in session:
             rs_df = pd.read_pickle("./uploads/"+filename+"unfiltered.pkl")
-            cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene']
+            cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene','freq']
         else:
             rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
-            cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene']
+            cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene','freq']
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
 
 
     else:
         rs_df = pd.read_pickle(database)
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
-        cols = ['rsid', 'chromosome', 'position', 'substitution', 'gene']
+        cols = ['rsid', 'chromosome', 'position', 'substitution', 'gene','freq']
     df = pd.DataFrame(rs_df_chr, columns=cols)    
     datatable = df.to_json(orient="table")
     jsontable = json.loads(datatable)
@@ -204,13 +204,13 @@ def output():
             else:
                 chain = "*"
                 ddgresults = [["N/A" for i in range(2)] for j in range(4)]
-            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, summary=summary, chain=chain, zip=zip, len=len)
+            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, summary=summary, chain=chain, zip=zip, len=len,float=float, round=round)
         elif 'pdbselect' in request.form:
             pdbselect = request.form['pdbselect']
             protselect = request.form['protselect'] if 'protselect' in request.form else "N/A"
             if first_aa != "N/A":
                 ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name, protselect)
-            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, summary=summary, chain=chain, zip=zip, len=len)
+            return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, summary=summary, chain=chain, zip=zip, len=len,float=float, round=round)
     if "rsid" in session:
         rsid = session["rsid"]
         genotype = session["genotype"]
@@ -229,7 +229,7 @@ def output():
                                aa1=first_aa, freq1000g=freq_kg,
                                freqhapmap=freq_hm, clin=clinical,
                                sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, summary=summary, chain = "*",
-                               zip=zip, len=len)
+                               zip=zip, len=len, float=float, round=round)
     else:
         return redirect(url_for('index'))
 
