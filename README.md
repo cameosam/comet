@@ -11,8 +11,8 @@ I-Mutant2.0: Capriotti, E., Fariselli, P., & Casadio, R. (2005). I-Mutant2.0: pr
 Nucleic acids research, 33, W306 - W310.
 <a href="https://folding.biofold.org/i-mutant/i-mutant2.0.html">I-Mutant2.0 Website Link</a>
 
-PANDA: Wang, Z., Zhao, C., Wang, Y., Sun, Z., & Wang, N. (2018) PANDA: Protein Function Prediction using Domain Architecture and Affinity Propagation. Scientific Reports, 8.
-<a href="http://dna.cs.miami.edu/PANDA/">PANDA GitHub Link</a>
+PANDA: Abbasi, W. A.; Abbas, S. A.; Andleeb, S. PANDA: Predicting the Change in Proteins Binding Affinity upon Mutations Using Sequence Information. ArXiv200908869 Cs Q-Bio Stat 2020.
+<a href="https://github.com/wajidarshad/panda">PANDA GitHub Link</a>
 
 UEP: Amengual-Rigo, P., Fernández-Recio, J., & Guallar, V. (2020). UEP: an open-source and fast classifier for predicting the impact of mutations in protein–protein complexes. Bioinformatics.
 <a href="https://github.com/pepamengual/UEP">UEP GitHub Link</a>  
