@@ -1,9 +1,9 @@
 # COMET
-Honours Thesis Project
+Honours Thesis Project. <br>
 COMET (Comparative mutation effect) is a web application that analyzes genotype data in terms of protein-protein interactions (PPIs) by calculating the change in binding affinity (∆∆G) 
 
 # Dependencies
-This application uses four ∆∆G predictions:
+This application uses four ∆∆G predictions: <br>
 SAAMBE 3D : Pahari, S., Li, G., Murthy, A. K., Liang, S., Fragoza, R., Yu, H., & Alexov, E. (2020). SAAMBE-3D: Predicting Effect of Mutations on Protein–Protein Interactions. International journal of molecular sciences, 21(7), 2563.
 <a href="http://compbio.clemson.edu/saambe_webserver/">SAAMBE Website Link</a>
 
@@ -22,3 +22,4 @@ py3: conda create -n py3 python=3.6 scikit-learn=0.20.3 biopython=1.77 flask=1.1
 Prody and compress_pickle (for UEP) was installed using pip. 
 py2: conda create -n py2 python=2.7 numpy=1.16.6 py-xgboost=0.90 pandas=0.22.0.
 
+Two folders must be created: uploads and prediction. The uploads folder stores the uploaded genotype text and pickle files. The prediction folder has the ∆∆G predictors (imutant, panda, saambe, uep) and a temporary folder (tmp) for the pdb and sequences files. 
