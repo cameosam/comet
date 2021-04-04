@@ -11,10 +11,6 @@ from ddgcalc_os import ddgcalcs
 import secrets
 import time
 
-# from flask_session import Session
-# from datetime import timedelta
-# from flask_sqlalchemy import SQLAlchemy 
-
 app = Flask(__name__)
 # MAX 30 mb
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 30 
@@ -22,16 +18,6 @@ app.config['UPLOAD_FOLDER'] = './uploads/'
 app.config['SECRET_KEY'] = "supersecretkey_MUSTBECHANGED!"
 app.config['SESSION_PERMANENT'] = True
 database = "./snp-db/snpDB_v5.pkl"
-
-# Add server-side sessionsß
-# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=5)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
-# app.config['SESSION_TYPE'] = 'sqlalchemy'
-# db = SQLAlchemy(app)
-# app.config['SESSION_SQLALCHEMY'] = db
-# sess = Session(app)
-# db.create_all()
 
 @app.route("/")
 @app.route("/home")

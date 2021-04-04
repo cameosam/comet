@@ -81,6 +81,7 @@ def ddgcalcs(pdb, aasub, gene, protselect):
         # imut2_out = subprocess_cmd('conda activate py2 && cd prediction/imutant && python -O  I-Mutant2.0.py -pdbv ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
         # imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
         # imut2_eff = muteffect(imut2_val,False) if imut2_val != 'N/A' and muteffect(imut2_val,False) else 'N/A'
+        
         imut2_val = "N/A"
         imut2_eff = "N/A"
         if secondchain != "*":

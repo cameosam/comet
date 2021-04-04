@@ -8,6 +8,7 @@ import sys
 import os.path
 from os import path
 
+condapath = '/Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh'
 aminoacids = {'Ala': 'A', 'Arg': 'R', 'Asn': 'N', 'Asp': 'D', 'Asx': 'B', 'Cys': 'C', 'Glu': 'E', 'Gln': 'Q', 'Glx': 'Z', 'Gly': 'G', 'His': 'H',
               'Ile': 'I', 'Leu': 'L', 'Lys': 'K', 'Met': 'M', 'Phe': 'F', 'Pro': 'P', 'Ser': 'S', 'Thr': 'T', 'Trp': 'W', 'Tyr': 'Y', 'Val': 'V', }
 
@@ -69,16 +70,16 @@ def ddgcalcs(pdb, aasub, gene, protselect):
 
     if pdb != "N/A" and chain != "*":
         # SAAMBE-3D calculation
-        saambe_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+        saambe_out = subprocess_cmd('source '+condapath+'; conda activate py2;\
             cd prediction/saambe;\
             python Mutation_pred.py -i ../tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 1').decode("utf-8")
         saambe_val = saambe_out.split("\n")[1] if "\n" in saambe_out else 'N/A'
         saambe_eff = muteffect(saambe_val,True) if saambe_val != 'N/A' and muteffect(saambe_val,True) else 'N/A'
         # imut2.0 struc calculation
-        subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+        subprocess_cmd('source '+condapath+'; conda activate py2;\
             cd prediction/imutant;\
             ./mkdssp -i ../tmp/'+pdb+'.pdb -o ../tmp/'+pdb+'.dssp')
-        imut2_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+        imut2_out = subprocess_cmd('source '+condapath+'; conda activate py2;\
             cd prediction/imutant;\
             python -O  I-Mutant2.0.py -pdbv ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
         imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
@@ -121,7 +122,7 @@ def ddgcalcs(pdb, aasub, gene, protselect):
     # imut2.0 seq calculation
     with open("prediction/tmp/sequence.seq", "w") as text_file:
         text_file.write(sequence)
-    imut2_seq_out = subprocess_cmd('source /Users/cameosameshima/opt/anaconda3/etc/profile.d/conda.sh; conda activate py2;\
+    imut2_seq_out = subprocess_cmd('source '+condapath+'; conda activate py2;\
         cd prediction/imutant;\
         python -O  I-Mutant2.0.py -seqv ../tmp/sequence.seq '+str(position)+' '+mutant)
     if "I-Mutant" in imut2_seq_out.decode("utf-8"):

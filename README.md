@@ -22,4 +22,4 @@ py3: conda create -n py3 python=3.6 scikit-learn=0.20.3 biopython=1.77 flask=1.1
 Prody and compress_pickle (for UEP) was installed using pip. 
 py2: conda create -n py2 python=2.7 numpy=1.16.6 py-xgboost=0.90 pandas=0.22.0.
 
-Two folders must be created: uploads and prediction. The uploads folder stores the uploaded genotype text and pickle files. The prediction folder has the ∆∆G predictors (imutant, panda, saambe, uep) and a temporary folder (tmp) for the pdb and sequences files. 
+Two folders must be created: uploads and prediction. The uploads folder stores the uploaded genotype text and pickle files. The prediction folder has the ∆∆G predictors folders (imutant, panda, saambe, and uep) and a temporary folder (tmp) for the pdb and sequences files. The ∆∆G predictors' program files can be downloaded from the above links. 
