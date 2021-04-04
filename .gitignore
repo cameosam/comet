@@ -1,7 +1,5 @@
 .DS_Store/
 __pycache__/
 .vscode/
-prediction/imutant
-prediction/panda
-prediction/saambe
-prediction/uep
+prediction/
+uploads/

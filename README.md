@@ -1,4 +1,4 @@
-# comet
+# COMET
 Honours Thesis Project
 COMET (Comparative mutation effect) is a web application that analyzes genotype data in terms of protein-protein interactions (PPIs) by calculating the change in binding affinity (∆∆G) 
 
@@ -12,10 +12,10 @@ Nucleic acids research, 33, W306 - W310.
 <a href="https://folding.biofold.org/i-mutant/i-mutant2.0.html">I-Mutant2.0 Website Link</a>
 
 PANDA: Wang, Z., Zhao, C., Wang, Y., Sun, Z., & Wang, N. (2018) PANDA: Protein Function Prediction using Domain Architecture and Affinity Propagation. Scientific Reports, 8.
-<a href="http://dna.cs.miami.edu/PANDA/">UEP GitHub Link</a>
+<a href="http://dna.cs.miami.edu/PANDA/">PANDA GitHub Link</a>
 
 UEP: Amengual-Rigo, P., Fernández-Recio, J., & Guallar, V. (2020). UEP: an open-source and fast classifier for predicting the impact of mutations in protein–protein complexes. Bioinformatics.
-<a href="https://github.com/pepamengual/UEP">   
+<a href="https://github.com/pepamengual/UEP">UEP GitHub Link</a>  
       
 To use multiple Python versions, conda environments were created. 
 py3: conda create -n py3 python=3.6 scikit-learn=0.20.3 biopython=1.77 flask=1.1.2 pandas=1.1.3 requests=2.25.1. 
