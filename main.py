@@ -6,7 +6,7 @@ import os
 import json
 import pandas as pd
 from helperfun import *
-from ddgcalc import ddgcalcs
+from ddgcalc_os import ddgcalcs
 import secrets
 import time
 

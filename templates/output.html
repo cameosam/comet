@@ -43,7 +43,7 @@
       <h2 class="result-titles">{{snp}}</h2>
       <hr>
       <div class="row">
-        <div class="col">
+        <div class="col left-graph">
           <p><strong>Gene: </strong>{{gene}}</p>
           <p></p>
           <p><strong>Chromosome: </strong>{{chr}}</p>
@@ -52,7 +52,7 @@
           <p><strong>Your Genotype: </strong>{{genotype}}</p>
           {% endif %}
         </div>
-        <div class="col">
+        <div class="col right-graph">
           <strong>Clinical significance:</strong>
           {% for i in range(0, len(clin)) %}
           {% if i == len(clin) - 1 %}{{clin[i]}}.

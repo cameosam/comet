@@ -11,7 +11,7 @@
 <div class="container">
     <h1>Step 2: Select a SNP to analyze (filter by chromosome)</h3>
         {% if dboff == 0 %}
-        <p>Click the Analyze button of the SNP you are interested in. Only non-synonymous SNPs that are present in COMET's database are shown.</p>
+        <p>Click the Analyze button of the SNP you are interested in. Only nonsynonymous SNPs that are present in COMET's database are shown.</p>
         <form action="#" method="post">
             <input type="submit" class="btn btn-secondary" name="turnoff" value="Turn off database filtering" onclick="$('#loading').show();">
         </form>
@@ -20,6 +20,8 @@
         <form action="#" method="post">
             <input type="submit" class="btn btn-secondary" name="turnon" value="Turn on database filtering" onclick="$('#loading').show();">
         </form>
+        {% else %}
+        <p>Click the Analyze button of the SNP you are interested in. All nonsynonymous SNPs that are present in COMET's database are shown.</p>
         {% endif %}
         <div id="chromosomes">
             <form action="#" method="post">
