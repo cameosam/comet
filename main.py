@@ -6,6 +6,7 @@ import os
 import json
 import pandas as pd
 from helperfun import *
+# change ddgcalc_os to ddgcalc_win when using windows
 from ddgcalc_os import ddgcalcs
 import secrets
 import time
