@@ -28,16 +28,28 @@
     <h3>Frequencies</h3>
     <p>The frequency of each SNP is compared to The 1000 Genomes Project and the HapMap Project when available.</p>
     <h3>Change in binding affinity (∆∆G)</h3>
-    <p>The ∆∆G value is predicted using four programs (SAAMBE-ED, I-Mutant2.0 (sequence and structure), PANDA and UEP).
+    <p>The ∆∆G value is predicted using four programs (SAAMBE-3D, I-Mutant2.0 (sequence and structure), PANDA and UEP).
         The stability consensus is determined based on the number of programs that indicate an increase in stability
-        verusus a decrease in stability. These programs accept the protein sequence (obtained from Uniprot) and/or the
-        protein (PDB) structure (obtained from RCSB).</p>
+        verusus a decrease in stability. </p>
+    <p>Regarding the interpretation of ∆∆G values, the effect of the mutation is determined by the sign of the ∆∆G
+        value. Positive ∆∆G values for I-Mutant2.0 and PANDA indicate an increase in stability whereas for SAAMBE-3D and
+        UEP indicate a decrease in stability. Thus, negative ∆∆G values for I-Mutant2.0 and PANDA indicate a decrease
+        in stability whereas for SAAMBE-3D and UEP indicate an increase in stability.</p>
+    <p>These programs accept the protein sequence (obtained from Uniprot) and/or the protein (PDB) structure (obtained
+        from RCSB). Sometimes the programs may not produce an output. If there is no PDB structure, SAAMBE-3D,
+        I-Mutant2.0 (structure) and UEP cannot calculate the ∆∆G value. If there is no sequence, I-Mutant2.0 (structure)
+        and PANDA cannot calculate the ∆∆G value. Additionally, UEP only evaluates mutations located in highly-packed
+        interface positions. UEP and and PANDA also rely on an explicitly stated secondary protein to calculate the ∆∆G
+        value.</p>
+
     <h3>Protein Viewer</h3>
     <p>The protein viewer uses the NGL viewer to display the PDB structure used to calculate the ∆∆G value.</p>
     <h2><strong>Uploading raw genotype data</strong></h2>
     <p>If you do not have a raw genotype file or prefer to not use your own, you can use the browse SNP option.
-        Alternatively, you can freely download raw genotype files from OpenSnp. (<a href="https://opensnp.org/">OpenSNP Link</a>). 
-        All raw genotype data is automatically deleted when the End Session button is clicked. If you forget to click
+        Alternatively, you can freely download raw genotype files from OpenSnp. (<a href="https://opensnp.org/">OpenSNP
+            Link</a>).
+        All raw genotype data is automatically deleted when the End Session button is clicked. If you forget to
+        click
         this button, the data will be automatically deleted after 24 hours.</p>
 </div>
 {% endblock %}

@@ -3,7 +3,7 @@ Honours Thesis Project. <br>
 COMET (Comparative mutation effect) is a web application that analyzes genotype data in terms of protein-protein interactions (PPIs) by calculating the change in binding affinity (∆∆G) 
 
 # Dependencies
-This application uses four ∆∆G predictions: <br>
+This application uses four ∆∆G predictors: <br>
 SAAMBE 3D : Pahari, S., Li, G., Murthy, A. K., Liang, S., Fragoza, R., Yu, H., & Alexov, E. (2020). SAAMBE-3D: Predicting Effect of Mutations on Protein–Protein Interactions. International journal of molecular sciences, 21(7), 2563.
 <a href="http://compbio.clemson.edu/saambe_webserver/">SAAMBE Website Link</a>
 
