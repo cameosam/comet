@@ -25,14 +25,14 @@
         {% endif %}
         <div id="chromosomes">
             <form action="#" method="post">
-                <div role="group" aria-label="Chromosome buttons">
+                <div class="btn-group d-flex" data-toggle="buttons" aria-label="Chromosome buttons">
                     {% if dboff == 1 %}
                     {% for i in (list(range(1, 23)) + list(['X', 'Y'])) %}
-                    <input type="submit" class="btn btn-outline-dark" name="chrom" value={{i}}>
+                    <input type="submit" class="btn btn-outline-dark w-100" name="chrom" value={{i}}>
                     {% endfor %}
                     {% else %}
                     {% for i in (list(range(1, 23)) + list(['X', 'Y', 'All'])) %}
-                    <input type="submit" class="btn btn-outline-dark" name="chrom" value={{i}}>
+                    <input type="submit" class="btn btn-outline-dark w-100" name="chrom" value={{i}}>
                     {% endfor %}
                     {% endif%}
             

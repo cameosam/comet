@@ -20,66 +20,57 @@
           <a class="btn btn-secondary jumpto" href="/select">Back to table</a>
           <a class="btn btn-secondary jumpto" href="/prevsnp">Previous SNP</a>
           <a class="btn btn-secondary jumpto" href="/nextsnp">Next SNP</a>
-          <a class="btn btn-outline-secondary jumpto" onclick="printDiv()">Print SNP info</a>
+          <a class="btn btn-outline-secondary jumpto" onclick="printSNPinfo()">Print SNP info</a>
         </div>
       </div>
       <div class="col jumpto">
         <p></p>
         <p>On this page:</p>
-        {% if condition[1] != "N/A" %}
         <a href="#conds">Related conditions and diseases</a><br>
-        {% endif %}
         <a href="#sub">Substitutions</a><br>
-        {% if freq1000g != 'N/A' or freqhapmap != 'N/A' %}
-        {% endif %}
         <a href="#freq">Frequencies</a><br>
         <a href="#bind-affinity">Change in binding affinity (∆∆G)</a><br>
-        {% if pdb != 'N/A' %}
-        <a href="#protein-viewer">Protein viewer</a><br>
-        {% endif %}
+        {% if pdb != 'N/A' %}<a href="#protein-viewer">Protein viewer</a><br>{% endif %}
       </div>
     </div>
-    <div id="printme">
+    <div id="snp-info-print">
       <h2 class="result-titles">{{snp}}</h2>
       <hr>
       <div class="row">
-        <div class="col left-graph">
+        <div class="col">
           <p><strong>Gene: </strong>{{gene}}</p>
-          <p></p>
           <p><strong>Chromosome: </strong>{{chr}}</p>
           {% if genotype != "N/A" and genotype != "undefined" %}
-          <p></p>
           <p><strong>Your Genotype: </strong>{{genotype}}</p>
           {% endif %}
         </div>
-        <div class="col right-graph">
+        <div class="col">
           <strong>Clinical significance:</strong>
           {% for i in range(0, len(clin)) %}
-          {% if i == len(clin) - 1 %}{{clin[i]}}.
-          {% else %}{{clin[i]}},
-          {% endif %}
+          {{clin[i]}}{% if i == len(clin) - 1 %}.{% else %},{% endif %}
           {% endfor %}
           <p></p>
-          <p></p>
-          <p><strong>Summary: </strong>{% if genotype != "N/A" and genotype != "undefined" %}Your genotype contains
-            {{summary[0]}} nucleotide substitution(s) associated with
-            this SNP. {% endif %} {% if summary[1] != -1 and freq1000g != 'N/A' %} The {{freq1000g[0]}} nucleotide is
-            present in about
-            {{summary[1]}}% of people. {% endif %}{% if ddgresults %}
+          <p><strong>Summary: </strong>
+            {% if genotype != "N/A" and genotype != "undefined" %}Your genotype contains {{summary[0]}} nucleotide
+            substitution(s) associated with this SNP. {% endif %}
+            {% if summary[1] != -1 and freq1000g != 'N/A' %} The {{freq1000g[0]}} nucleotide is present in about
+            {{summary[1]}}% of people. {% endif %}
+            {% if ddgresults %}
             {% if ddgresults[len(ddgresults)-1][2] == "Decrease in stability" %} The amino acid
-            substitution associated with this SNP causes a decrease in stability.
-            {% endif %}{% if ddgresults[len(ddgresults)-1][2] == "Increase in stability" %}The amino acid substitution
-            associated with this SNP causes an increase in
-            stability.{% endif %}{% if ddgresults[len(ddgresults)-1][2] == "No change in stability" %}The amino acid
-            substitution associated with this SNP has an inconclusive change in stability.{% endif %}</p>
-          {% endif %}
+            substitution associated with this SNP causes a decrease in stability.{% endif %}
+            {% if ddgresults[len(ddgresults)-1][2] == "Increase in stability" %}The amino acid substitution
+            associated with this SNP causes an increase in stability.{% endif %}
+            {% if ddgresults[len(ddgresults)-1][2] == "No change in stability" %}The amino acid
+            substitution associated with this SNP has an inconclusive change in stability.{% endif %}
+            {% endif %}
+          </p>
         </div>
       </div>
     </div>
     <script>
-      function printDiv() {
-        var divContents = document.getElementById("printme").innerHTML;
-        var divContents2 = document.getElementById("printme2").innerHTML;
+      function printSNPinfo() {
+        var divContents = document.getElementById("snp-info-print").innerHTML;
+        var divContents2 = document.getElementById("cond-disease-print").innerHTML;
         var a = window.open('', '', 'height=500, width=500');
         a.document.write('<html>');
         a.document.write('<body>');
@@ -90,120 +81,110 @@
         a.print();
       }
     </script>
-    {% if condition[1] != "N/A" or len(condition[0]) != 0 %}
     <h2 class="result-titles" id="conds">Related conditions and diseases</h2>
     <hr>
+    {% if condition[0] != [] or condition[2] != [] %}
+    <p class="grey-border">These pie chart(s) represent the related conditions from ClinVar and the related diseases
+      from LitVar. For ClinVar, the numbers represent the number of times the condition appears in the database whereas
+      for LitVar it represents the number of published literature corresponding to the disease.</p>
+    <div class="left-box"><canvas id="clinvar" width="20" height="10"></canvas></div>
+    <div class="right-box"><canvas id="litvar" width="20" height="10"></canvas></div>
     {% endif %}
-    <div class="row">
-      <div class="col">
-        {% if condition[1] != "N/A" %}
-        <canvas id="litvar" class="left-graph" width="20" height="10"></canvas>
-        {% endif %}
-      </div>
-      <div class="col">
-        <div id="printme2">
-          {% if len(condition[0]) != 0 %}
-          <strong>ClinVar related conditions:</strong>
-          {% for i in range(0, len(condition[0])) %}
-          {% if i == len(condition[0]) - 1 %}{{condition[0][i]}}.
-          {% else %}{{condition[0][i]}},
-          {% endif %}
-          {% endfor %}
-          {% endif %}
-          {% if condition[1] != "N/A" %}
-          <p></p>
-          <p></p>
-          <strong>LitVar related diseases:</strong>
-          {% for i in range(0, len(condition[1])) %}
-          {% if i == len(condition[1]) - 1 %}
-          {{condition[1][i]}} ({{condition[2][i]}}).
-          {% else %}
-          {{condition[1][i]}} ({{condition[2][i]}}),
-          {% endif %}
-          {% endfor %}
-          {% endif %}
-        </div>
-      </div>
+    <div id="cond-disease-print">
+      {% if condition[0] == [] and condition[2] == [] %}
+      There are no related conditions/diseases for this SNP from ClinVar or LitVar.
+      {% else %}
+      <strong>ClinVar related conditions (with frequency):</strong>
+      {% if condition[0] != [] %}
+      {% for i in range(0, len(condition[0])) %}
+      {{condition[0][i]}} ({{condition[1][i]}}){% if i == len(condition[0]) - 1 %}.{% else %},{% endif %}
+      {% endfor %}
+      {% else %} N/A.
+      {% endif %}
+      <p></p>
+      <strong>LitVar related diseases (with frequency):</strong>
+      {% if condition[2] != [] %}
+      {% for i in range(0, len(condition[2])) %}
+      {{condition[2][i]}} ({{condition[3][i]}}){% if i == len(condition[2]) - 1 %}.{% else %},{% endif %}
+      {% endfor %}
+      {% else %} N/A.
+      {% endif %}
+      {% endif %}
     </div>
     <script>
-      var litvar = new Chart(document.getElementById("litvar"), {
+      var colors = ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
+        "#ECD5E3", "#719fb0", "#351f39", "#c7cfb7", "#9dad7f", "#557174",
+        "#889bae"
+      ];
+      var clinvar = new Chart(document.getElementById("clinvar"), {
         type: 'pie',
         data: {
-          labels: '{{condition[1]| tojson}}'.slice(1, -1).split(', '),
+          labels: '{{condition[0]| tojson}}'.slice(1, -1).split(', '),
           datasets: [{
-            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
-              "#ECD5E3"
-            ],
-            data: '{{condition[2]| tojson}}'.slice(1, -1).split(', ')
+            backgroundColor: colors,
+            data: '{{condition[1]| tojson}}'.slice(1, -1).split(', ')
           }]
         },
         options: {
           title: {
             display: true,
-            text: 'LitVar published literature per related disease'
+            text: 'ClinVar conditions'
           },
           legend: {
             position: 'left'
-          }
+          },
+        }
+      });
+      var litvar = new Chart(document.getElementById("litvar"), {
+        type: 'pie',
+        data: {
+          labels: '{{condition[2]| tojson}}'.slice(1, -1).split(', '),
+          datasets: [{
+            backgroundColor: colors,
+            data: '{{condition[3]| tojson}}'.slice(1, -1).split(', ')
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'LitVar diseases'
+          },
+          legend: {
+            position: 'right'
+          },
         }
       });
     </script>
-
     <h2 class="result-titles" id="sub">Substitutions</h2>
     <hr>
     <p class="grey-border">These pie chart(s) represent the nucleotide and/or amino acid substiutions that are
       documented for this SNP. The larger values indicate the subsitutions that are more commonly associated with the
       given SNP.</p>
-    <div class="left-box"><canvas id="chart1" class="left-graph" width="20" height="10"></canvas></div>
-    <div class="right-box"><canvas id="chart2" class="right-graph" width="20" height="10"></canvas></div>
-
-    <p>The nucleotide substitutions (with frequency) are
+    <div class="left-box"><canvas id="n_freq" width="20" height="10"></canvas></div>
+    <div class="right-box"><canvas id="aa_freq" width="20" height="10"></canvas></div>
+    <p><strong>Substitutions (with frequency):</strong>
+      Nucleotide:
       {% for i in range(0, len(sorted_nuclist[0])) %}
-      {% if i == len(sorted_nuclist[0]) - 1 %}
-      {{sorted_nuclist[0][i]}} ({{sorted_nuclist[1][i]}}).
-      {% else %}
-      {{sorted_nuclist[0][i]}} ({{sorted_nuclist[1][i]}}),
-      {% endif %}
+      {{sorted_nuclist[0][i]}} ({{sorted_nuclist[1][i]}}){% if i == len(sorted_nuclist[0]) - 1 %}.{% else %},{% endif %}
       {% endfor %}
-      {% if aa1 == 'N/A' %}
-      There are no known amino acid substitutions.
-      {% else %}
-      The amino acid substitutions (with frequency) are
+      {% if aa1 != 'N/A' %}
+      Amino acid:
       {% for i in range(0, len(sorted_aalist[0])) %}
-      {% if i == len(sorted_aalist[0]) - 1 %}
-      {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}).
-      {% else %}
-      {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}),
-      {% endif %}
+      {{sorted_aalist[0][i]}} ({{sorted_aalist[1][i]}}){% if i == len(sorted_aalist[0]) - 1 %}.{% else %},{% endif %}
       {% endfor %}
       {% endif %}
     </p>
-    {% if freq1000g != 'N/A' or freqhapmap != 'N/A' %}
-    <h2 class="result-titles" id="freq">Frequencies</h2>
-    <hr>
-    <p class="grey-border">These pie chart(s) represent the frequency of the nucleotide corresponding to the SNP
-      compared to the frequency
-      of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
-    <div class="left-box"><canvas id="pie1" class="left-graph" width="20" height="10"></canvas></div>
-    <div class="right-box"><canvas id="pie2" class="right-graph" width="20" height="10"></canvas></div>
-    <br>
-    <p>{% if freq1000g != 'N/A' %}The {{ freq1000g[0]}} nucleotide has a frequency of
-      {{round(float(freq1000g[3:])*100,2)}}% in the 1000
-      Genomes Project. {% endif %}{% if freqhapmap != 'N/A' %}The {{ freqhapmap[0] }} nucleotide has a
-      frequency of {{ round(float(freqhapmap[3:]),2) *100}}% in the HapMap Project.{% endif %}</p>
-    {% else %}
-    <p>There are no nucleotide frequencies for this SNP from the 1000 Genomes Project or the HapMap Project.</p>
-    {% endif %}
     <script>
-      var chart1 = new Chart(document.getElementById("chart1"), {
+      var colors = ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
+        "#ECD5E3", "#719fb0", "#351f39", "#c7cfb7", "#9dad7f", "#557174",
+        "#889bae"
+      ];
+      var n_freq = new Chart(document.getElementById("n_freq"), {
         type: 'pie',
         data: {
           labels: '{{sorted_nuclist[0]| tojson}}'.slice(1, -1).split(', '),
           datasets: [{
-            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
-              "#ECD5E3", "#719fb0", "#351f39", "#c7cfb7", "#9dad7f", "#557174",
-              "#889bae"
-            ],
+            backgroundColor: colors,
             data: '{{sorted_nuclist[1]| tojson}}'.slice(1, -1).split(', ')
           }]
         },
@@ -223,15 +204,12 @@
         aa_val = 'N/A';
         aa_label = 'N/A';
       }
-      var chart2 = new Chart(document.getElementById("chart2"), {
+      var aa_freq = new Chart(document.getElementById("aa_freq"), {
         type: 'pie',
         data: {
           labels: aa_label,
           datasets: [{
-            backgroundColor: ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
-              "#ECD5E3", "#719fb0", "#a0c1b8", "#c7cfb7", "#9dad7f", "#557174",
-              "#889bae"
-            ],
+            backgroundColor: colors,
             data: aa_val
           }]
         },
@@ -245,12 +223,37 @@
           }
         }
       });
-      var fraction1 = parseFloat('{{ freq1000g[3:] }}')
-      var fracs1 = [fraction1, 1 - fraction1]
-      var labels1 = ['{{ freq1000g[0] }}', "Other"]
-      var fraction2 = parseFloat('{{ freqhapmap[3:] }}')
-      var fracs2 = [fraction2, 1 - fraction2]
-      var labels2 = ['{{ freqhapmap[0] }}', "Other"]
+    </script>
+    <h2 class="result-titles" id="freq">Frequencies</h2>
+    <hr>
+    {% if freq1000g != 'N/A' or freqhapmap != 'N/A' %}
+    <p class="grey-border">These pie chart(s) represent the frequency of the nucleotide corresponding to the SNP
+      compared to the frequency of all other nucleotides. The smaller percentage indicates rarer SNPs.</p>
+    <div class="left-box"><canvas id="hg_freq" width="20" height="10"></canvas></div>
+    <div class="right-box"><canvas id="hmp_freq" width="20" height="10"></canvas></div>
+    <br>
+    <p><strong>Nucleotide frequencies (nucleotide, database):</strong>
+      {% if freq1000g != 'N/A' %}
+      {{round(float(freq1000g[2:])*100,2)}}% ({{ freq1000g[0]}}, 1000 Genomes Project).
+      {% endif %}
+      {% if freqhapmap != 'N/A' %}
+      {{round(float(freqhapmap[2:]),2) *100}}% ({{ freqhapmap[0] }}, HapMap Project).
+      {% endif %}
+    </p>
+    {% else %}
+    <p>There are no nucleotide frequencies for this SNP from the 1000 Genomes Project or the HapMap Project.</p>
+    {% endif %}
+    <script>
+      var colors = ['#97c1a9', '#c6dbda', "#D4D479", "#CCE2CB", "#FFBF91", "#FFFFB5", "#FCB9AA",
+        "#ECD5E3", "#719fb0", "#351f39", "#c7cfb7", "#9dad7f", "#557174",
+        "#889bae"
+      ];
+      var fraction1 = parseFloat('{{ freq1000g[2:] }}');
+      var fracs1 = [fraction1, 1 - fraction1];
+      var labels1 = ['{{ freq1000g[0] }}', "Other"];
+      var fraction2 = parseFloat('{{ freqhapmap[2:] }}');
+      var fracs2 = [fraction2, 1 - fraction2];
+      var labels2 = ['{{ freqhapmap[0] }}', "Other"];
       if ('{{freq1000g}}' == 'N/A') {
         fracs1 = 'N/A';
         labels1 = 'N/A';
@@ -259,8 +262,7 @@
         fracs2 = 'N/A';
         labels2 = 'N/A';
       }
-      var colors = ['#97c1a9', '#c6dbda'];
-      var pie1 = new Chart(document.getElementById("pie1"), {
+      var hg_freq = new Chart(document.getElementById("hg_freq"), {
         type: 'pie',
         data: {
           labels: labels1,
@@ -279,10 +281,10 @@
           }
         }
       });
-      var pie2 = new Chart(document.getElementById("pie2"), {
+      var hmp_freq = new Chart(document.getElementById("hmp_freq"), {
         type: 'pie',
         data: {
-          labels: labels1,
+          labels: labels2,
           datasets: [{
             backgroundColor: colors,
             data: fracs2
@@ -299,17 +301,13 @@
         }
       });
     </script>
-
     <h2 class="result-titles" id="bind-affinity">Change in binding affinity (∆∆G)</h2>
     <hr>
     {% if aa1 != 'N/A' %}
-
-    {% if ddgresults%}
+    {% if ddgresults %}
     {% if pdb != "N/A" %}
     <p class="grey-border">Recalculate ∆∆G value with a different PDB structure or protein (if available). Only UEP
-      and
-      PANDA rely on
-      an explicitly stated secondary protein.</p>
+      and PANDA rely on an explicitly stated secondary protein.</p>
     <form action="#" method="post">
       <div>
         {% for i in pdb %}
@@ -381,11 +379,9 @@
     <br>
     <p>Note: UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0
       Structure only calculate ∆∆G if the position is present on the pdb structure. PANDA and UEP only calculate ∆∆G
-      if
-      the secondary sequence is available.</p>
+      if the secondary sequence is available.</p>
     {% endif %}
     {% if pdb != 'N/A' %}
-
     <h2 class="result-titles" id="protein-viewer">Protein viewer </h2>
     <hr>
     {% if ddgresults and chain[0] != "*" %}

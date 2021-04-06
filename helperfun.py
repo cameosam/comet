@@ -71,34 +71,29 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'txt' and filename != ''
 
 def get_clinlitvar(rsid):
+    # clinvar conditions
     handle = Entrez.esearch(db="clinvar", term=rsid)
-    record = Entrez.read(handle)
-    conditions = []
+    record = Entrez.read(handle, validate=False)
+    cond_freq = {}
     if len(record["IdList"]) > 0:
         handle = Entrez.esummary(db="clinvar", id=record["IdList"][0])
-        record = Entrez.read(handle)
+        record = Entrez.read(handle, validate=False)
         for i in range(0,len(record['DocumentSummarySet']['DocumentSummary'][0]['trait_set'])):
             trait = record['DocumentSummarySet']['DocumentSummary'][0]['trait_set'][i]['trait_name']
-            if "not" not in trait and trait not in conditions:
-                conditions.append(trait)
-    
+            trait = trait.replace(",",";")
+            if (trait in cond_freq):
+                cond_freq[trait] += 1
+            elif ("not" not in trait):
+                cond_freq[trait] = 1
+    # litvar diseases
     response = requests.get("https://www.ncbi.nlm.nih.gov/research/bionlp/litvar/api/v1/entity/litvar/"+rsid+"%23%23")
-    if response.text != "":
-        diseases = response.json()['diseases']
-        disease_name = []
-        disease_freq = []
-        for key, value in diseases.items():
-            disease_name.append(key.replace(",",";"))
-            disease_freq.append(value)
-    else:
-        disease_name = disease_freq = "N/A"
-    if disease_name == []:
-        disease_name = disease_freq = "N/A"
-    return [conditions, disease_name, disease_freq]
+    dis_freq = response.json()['diseases'] if response.text != "" else {}
+    dis_freq = {key.replace(",",";") : value for key, value in dis_freq.items()}
+    return [list(cond_freq.keys()), list(cond_freq.values()),  list(dis_freq.keys()), list(dis_freq.values())]
 
 def getsnpinfo(rsid):
     handle = Entrez.esummary(db="snp", term="[snp_id]", id=rsid[2:])
-    record = Entrez.read(handle)['DocumentSummarySet']['DocumentSummary'][0]
+    record = Entrez.read(handle, validate=False)['DocumentSummarySet']['DocumentSummary'][0]
 
     # gene, chromosome, amino acid substitution, clinical significance
     gene_name = record['GENES'][0]['NAME'] if (record['GENES']) else "N/A"
@@ -107,31 +102,30 @@ def getsnpinfo(rsid):
     clinical = record['CLINICAL_SIGNIFICANCE'] if record['CLINICAL_SIGNIFICANCE'] !=  '' else "N/A"
     clinical = clinical.replace("-"," ").split(",")
     # substitutions
-    nuclist = []
-    aalist = []
-    first_aa = []
+    nuc_freq = {}
+    aa_freq = {}
     entries = docsum.split(",")
     for i in entries:
-        if any(x in i for x in ["AC","NC","NG","NT","NW","NZ"]) and ">" in i[-3:] and i[-3:] not in nuclist:
-            nuclist.append(i[-3:])
-        if "p." in i and (i.partition("p.")[2] not in aalist and len(i.partition("p.")[2]) < 10):
-            aalist.append(i.partition("p.")[2])
-    nuccount = []
-    aacount = []
-    for i in nuclist:
-        nuccount.append(docsum.count(i))
-    for i in aalist:
-        aacount.append(docsum.count(i))
-    if aacount:
-        zipped_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
-        zipped_aalist = sorted(list(zip(aalist, aacount)),key=lambda x: (x[1]), reverse=True)
-        first_aa = zipped_aalist[0][0]
-        sorted_nuclist = [[i[0] for i in zipped_nuclist],[i[1] for i in zipped_nuclist]]
-        sorted_aalist = [[i[0] for i in zipped_aalist],[i[1] for i in zipped_aalist]]
-    else:
-        zipped_nuclist = sorted(list(zip(nuclist, nuccount)),key=lambda x: (x[1]), reverse=True)
-        sorted_nuclist = [[i[0] for i in zipped_nuclist],[i[1] for i in zipped_nuclist]]
-        sorted_aalist = first_aa = 'N/A'
+        if any(x in i for x in ["AC","NC","NG","NT","NW","NZ"]) and ">" in i[-3:]:
+            n_sub = i[-3:]
+            if (n_sub in nuc_freq):
+                nuc_freq[n_sub] += 1
+            else:
+                nuc_freq[n_sub] = 1
+        if ("p." in i) and (len(i.partition("p.")[2]) < 10):
+            aa_sub = i.partition("p.")[2]
+            if (aa_sub in aa_freq):
+                aa_freq[aa_sub] += 1
+            else:
+                aa_freq[aa_sub] = 1
+    nuc_freq = dict(sorted(nuc_freq.items(), key=lambda item: item[1], reverse=True))
+    aa_freq = dict(sorted(aa_freq.items(), key=lambda item: item[1], reverse=True))
+    sorted_nuclist = [list(nuc_freq.keys()),list(nuc_freq.values())]
+    sorted_aalist = [list(aa_freq.keys()),list(aa_freq.values())]
+    try:
+        first_aa = sorted_aalist[0][0]
+    except IndexError:
+        first_aa = "N/A"
 
     # minor allele frequency
     maf = record['GLOBAL_MAFS']
@@ -152,7 +146,10 @@ def getsequence(uniprotcode):
     cData = ''.join(response.text)
     Seq = StringIO(cData)
     pSeq = list(SeqIO.parse(Seq, 'fasta'))
-    return str(pSeq[0].seq)
+    try:
+        return str(pSeq[0].seq)
+    except IndexError:
+        return "N/A"
 
 def get_uniprot_code_ints(gene):
     baseUrl = "http://www.uniprot.org/uniprot/"

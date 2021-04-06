@@ -8,10 +8,6 @@ table {
     width: 100%;
 }
 
-th.info {
-    width: 40%;
-}
-
 th,
 td {
     text-align: left;
@@ -88,37 +84,25 @@ body {
 
 .jumbotron {
     text-align: center;
-    /* background-color: #E8ECEB; */
     background-color: #f1f6f9;
     padding: 150px;
 }
 
 .predictors {
     text-align: center;
-
 }
 
 .left-box {
     background-color: #FFFFFF;
     width: 50%;
     float: left;
+    margin-bottom: 2em
 }
 
 .right-box {
     background-color: #FFFFFF;
     width: 50%;
     float: right;
-}
-
-.left-graph {
-    float: left;
-    margin-left: 2em;
-    margin-bottom: 2em
-}
-
-.right-graph {
-    float: right;
-    margin-right: 2em;
     margin-bottom: 2em
 }
 
@@ -129,9 +113,7 @@ body {
 
 /**ID SELECTORS**/
 #chromosomes {
-    padding: 20px;
-    padding-bottom: 40px;
-    text-align: center;
+    padding: 20px 0;
 }
 
 #title {

@@ -128,8 +128,6 @@ def index_get_data():
             rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
             cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene','freq']
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
-
-
     else:
         rs_df = pd.read_pickle(database)
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
@@ -184,6 +182,7 @@ def output():
         rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, condition, summary= session[
                 "output"]
         if 'ddgcalc' in request.form:
+            # calculate the ddg values for the first time
             if first_aa != "N/A":
                 protselect = "N/A"
                 ddgresults, chain = ddgcalcs(first_pdb, first_aa, gene_name, protselect)
@@ -192,12 +191,14 @@ def output():
                 ddgresults = [["N/A" for i in range(2)] for j in range(4)]
             return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=first_pdb, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, summary=summary, chain=chain, zip=zip, len=len,float=float, round=round)
         elif 'pdbselect' in request.form:
+            # recalculate the ddg values with a different pdb/protein
             pdbselect = request.form['pdbselect']
             protselect = request.form['protselect'] if 'protselect' in request.form else "N/A"
             if first_aa != "N/A":
                 ddgresults, chain = ddgcalcs(pdbselect, first_aa, gene_name, protselect)
             return render_template("output.html", snp=rsid, genotype = genotype, gene=gene_name, chr=chromosome, pdb=pdbs, pdbselect=pdbselect, aa1=first_aa, ddgresults=ddgresults, freq1000g=freq_kg, freqhapmap=freq_hm, clin=clinical, sorted_nuclist=sorted_nuclist, sorted_aalist=sorted_aalist, condition=condition, summary=summary, chain=chain, zip=zip, len=len,float=float, round=round)
     if "rsid" in session:
+        # results page (no ddg values)
         rsid = session["rsid"]
         genotype = session["genotype"]
         gene_name, chromosome, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, first_aa = getsnpinfo(rsid) 
@@ -208,7 +209,6 @@ def output():
             first_pdb = pdbs[0]
         else:
             first_pdb = "N/A"
-        print(freq_kg, freq_hm)
         session["output"] = [rsid, genotype, gene_name, chromosome, pdbs, first_pdb, first_aa, freq_kg, freq_hm, clinical, sorted_nuclist, sorted_aalist, condition, summary]
         return render_template("output.html", snp=rsid, genotype= genotype,gene=gene_name,
                                chr=chromosome, pdb=pdbs, pdbselect=first_pdb,

@@ -105,7 +105,8 @@ def ddgcalcs(pdb, aasub, gene, protselect):
         os.remove('prediction/tmp/'+pdb+'.dssp')
     else:
         saambe_val = saambe_eff = imut2_val = imut2_eff = uep_val = uep_eff = 'N/A'
-    if seconduniprotcode != "N/A":
+
+    if seconduniprotcode != "N/A" and sequence != "N/A":
         # panda calculation
         mutseq = "'" + sequence[:position-1] + mutant + sequence[position:] + "'"
         sequence = "'" + sequence[:position-1] + wild + sequence[position:] + "'"
@@ -120,18 +121,21 @@ def ddgcalcs(pdb, aasub, gene, protselect):
         panda_val = panda_eff = 'N/A'
 
     # imut2.0 seq calculation
-    with open("prediction/tmp/sequence.seq", "w") as text_file:
-        text_file.write(sequence)
-    imut2_seq_out = subprocess_cmd('source '+condapath+'; conda activate py2;\
-        cd prediction/imutant;\
-        python -O  I-Mutant2.0.py -seqv ../tmp/sequence.seq '+str(position)+' '+mutant)
-    if "I-Mutant" in imut2_seq_out.decode("utf-8"):
-        imut2_seq_val = (imut2_seq_out.decode("utf-8").split("pH    T")
-                         [1].split("WT")[0]).split()[3]
+    if sequence != "N/A":
+        with open("prediction/tmp/sequence.seq", "w") as text_file:
+            text_file.write(sequence)
+        imut2_seq_out = subprocess_cmd('source '+condapath+'; conda activate py2;\
+            cd prediction/imutant;\
+            python -O  I-Mutant2.0.py -seqv ../tmp/sequence.seq '+str(position)+' '+mutant)
+        if "I-Mutant" in imut2_seq_out.decode("utf-8"):
+            imut2_seq_val = (imut2_seq_out.decode("utf-8").split("pH    T")
+                            [1].split("WT")[0]).split()[3]
+        else:
+            imut2_seq_val ='N/A'
+        imut2_seq_eff = muteffect(imut2_seq_val,False) if  imut2_seq_val != 'N/A' and muteffect(imut2_seq_val,False) else 'N/A'
+        os.remove('prediction/tmp/sequence.seq')
     else:
-        imut2_seq_val ='N/A'
-    imut2_seq_eff = muteffect(imut2_seq_val,False) if  imut2_seq_val != 'N/A' and muteffect(imut2_seq_val,False) else 'N/A'
-    os.remove('prediction/tmp/sequence.seq')
+        imut2_seq_val = imut2_seq_eff = 'N/A'
 
     # Consensus
     increase = len(list(filter(lambda x: x == "Increase in stability", [saambe_eff, imut2_eff, imut2_seq_eff, panda_eff, uep_eff])))

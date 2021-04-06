@@ -8,6 +8,7 @@ import sys
 from os import path
 from prediction.panda.panda import *
 
+condapath = 'C:\\Users\\CameoSameshima\\Desktop\\thesis\\comet'
 aminoacids = {'Ala': 'A', 'Arg': 'R', 'Asn': 'N', 'Asp': 'D', 'Asx': 'B', 'Cys': 'C', 'Glu': 'E', 'Gln': 'Q', 'Glx': 'Z', 'Gly': 'G', 'His': 'H',
               'Ile': 'I', 'Leu': 'L', 'Lys': 'K', 'Met': 'M', 'Phe': 'F', 'Pro': 'P', 'Ser': 'S', 'Thr': 'T', 'Trp': 'W', 'Tyr': 'Y', 'Val': 'V', }
 
@@ -68,26 +69,26 @@ def ddgcalcs(pdb, aasub, gene, protselect):
 
     sequence = getsequence(uniprotcode)
 
-    print(pdb, chain,str(position - shift), wild, mutant)
-
     if pdb != "N/A" and chain != "*":
         # SAAMBE-3D calculation
         saambe_out = subprocess_cmd('conda activate py2 && cd prediction/saambe && python Mutation_pred.py -i ../tmp/'+pdb+'.pdb -c '+chain+' -r '+str(position - shift)+' -w '+wild+' -m '+mutant+' -d 1').decode("utf-8")
         saambe_val = saambe_out.split("\n")[1] if "\n" in saambe_out else 'N/A'
         saambe_eff = muteffect(saambe_val,True) if saambe_val != 'N/A' and muteffect(saambe_val,True) else 'N/A'
 
-        # imut2.0 struc calculation
+        # imut2.0 struc calculation 
+        # DSSP dependency not working
         # subprocess_cmd('cd prediction/imutant && mkdssp.exe -i ../tmp/'+pdb+'.pdb -o ../tmp/'+pdb+'.dssp')
         # imut2_out = subprocess_cmd('conda activate py2 && cd prediction/imutant && python -O  I-Mutant2.0.py -pdbv ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
         # imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
         # imut2_eff = muteffect(imut2_val,False) if imut2_val != 'N/A' and muteffect(imut2_val,False) else 'N/A'
-        
+        # get rid of files
+        # os.remove('prediction/tmp/'+pdb+'.dssp')
         imut2_val = "N/A"
         imut2_eff = "N/A"
+        
         if secondchain != "*":
             # UEP calculation
             os.system('cd prediction/uep && python UEP.py --pdb=../tmp/'+pdb +'.pdb --interface='+chain+','+secondchain)
-            print("here")
             uep_file_path = 'prediction/tmp/'+pdb+'_UEP_'+chain+'_'+secondchain+'.csv'
             if path.exists(uep_file_path):
                 uep_out = pd.read_csv(uep_file_path)
@@ -100,40 +101,41 @@ def ddgcalcs(pdb, aasub, gene, protselect):
         else:
             uep_val = uep_eff = 'N/A'
     
-        # # get rid of files
+        # get rid of files
         os.remove('prediction/tmp/'+pdb+'.pdb')
-        # os.remove('prediction/tmp/'+pdb+'.dssp')
     else:
         saambe_val = saambe_eff = imut2_val = imut2_eff = uep_val = uep_eff = 'N/A'
 
-    if seconduniprotcode != "N/A":
+    if seconduniprotcode != "N/A" and sequence != "N/A":
         # panda calculation
         mutseq = "'" + sequence[:position-1] + mutant + sequence[position:] + "'"
         sequence = "'" + sequence[:position-1] + wild + sequence[position:] + "'"
         secondseq = "'" + getsequence(seconduniprotcode) + "'"
         
-        os.chdir("C:\\Users\\CameoSameshima\\Desktop\\thesis\\comet\\prediction\\panda")
+        os.chdir(condapath+"\\prediction\\panda")
         
         panda_val = predict_affinity(secondseq,sequence,secondseq,mutseq)
         panda_val = panda_val[0]
-        print(panda_val)
         panda_eff = muteffect(panda_val,False) if panda_val != 'N/A' and muteffect(panda_val,False) else 'N/A'
-        os.chdir("C:\\Users\\CameoSameshima\\Desktop\\thesis\\comet")
+        os.chdir(condapath)
         # print(os.getcwd())
     else:
         panda_val = panda_eff = 'N/A'
 
     # imut2.0 seq calculation
-    with open("C:\\Users\\CameoSameshima\\Desktop\\thesis\\comet\\prediction\\tmp\\sequence.seq", "w") as text_file:
-        text_file.write(sequence)
-    imut2_seq_out = subprocess_cmd('conda activate py2 && cd prediction/imutant && python -O  I-Mutant2.0.py -seqv ../tmp/sequence.seq '+str(position)+' '+mutant)
-    if "I-Mutant" in imut2_seq_out.decode("utf-8"):
-        imut2_seq_val = (imut2_seq_out.decode("utf-8").split("pH    T")
-                            [1].split("WT")[0]).split()[3]
+    if sequence != "N/A":
+        with open(condapath+"\\prediction\\tmp\\sequence.seq", "w") as text_file:
+            text_file.write(sequence)
+        imut2_seq_out = subprocess_cmd('conda activate py2 && cd prediction/imutant && python -O  I-Mutant2.0.py -seqv ../tmp/sequence.seq '+str(position)+' '+mutant)
+        if "I-Mutant" in imut2_seq_out.decode("utf-8"):
+            imut2_seq_val = (imut2_seq_out.decode("utf-8").split("pH    T")
+                                [1].split("WT")[0]).split()[3]
+        else:
+            imut2_seq_val ='N/A'
+        imut2_seq_eff = muteffect(imut2_seq_val,False) if  imut2_seq_val != 'N/A' and muteffect(imut2_seq_val,False) else 'N/A'
+        os.remove(condapath+'\\prediction\\tmp\\sequence.seq')
     else:
-        imut2_seq_val ='N/A'
-    imut2_seq_eff = muteffect(imut2_seq_val,False) if  imut2_seq_val != 'N/A' and muteffect(imut2_seq_val,False) else 'N/A'
-    os.remove('C:\\Users\\CameoSameshima\\Desktop\\thesis\\comet\\prediction\\tmp\\sequence.seq')
+        imut2_seq_val = imut2_seq_eff = 'N/A'
 
     # Consensus
     increase = len(list(filter(lambda x: x == "Increase in stability", [saambe_eff, imut2_eff, imut2_seq_eff, panda_eff, uep_eff])))
