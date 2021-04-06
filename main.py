@@ -14,16 +14,16 @@ import time
 app = Flask(__name__)
 # MAX 30 mb
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 30 
-app.config['UPLOAD_FOLDER'] = './uploads/'
+app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['SECRET_KEY'] = "supersecretkey_MUSTBECHANGED!"
 app.config['SESSION_PERMANENT'] = True
-database = "./snp-db/snpDB_v5.pkl"
+database = "snp-db/snpDB_v5.pkl"
 
 @app.route("/")
 @app.route("/home")
 def index():
     uploadfiles = [os.path.join(app.config['UPLOAD_FOLDER'], filename) for filename in os.listdir( app.config['UPLOAD_FOLDER'])]
-    tmpfiles = [os.path.join('./prediction/tmp/', filename) for filename in os.listdir('./prediction/tmp/')]
+    tmpfiles = [os.path.join('prediction/tmp/', filename) for filename in os.listdir('prediction/tmp/')]
     deletefiles(uploadfiles)
     deletefiles(tmpfiles)
     return render_template("index.html")
@@ -36,8 +36,8 @@ def about():
 def endsession():
     if session.get("file") != None:
         if session["file"] != "N/A":
-            os.remove('uploads/'+session["file"]+'.pkl')
-            os.remove('uploads/'+session["file"]+'unfiltered.pkl')
+            os.remove(app.config['UPLOAD_FOLDER']+session["file"]+'.pkl')
+            os.remove(app.config['UPLOAD_FOLDER']+session["file"]+'unfiltered.pkl')
             [session.pop(key) for key in list(session.keys())]
             flash('Thanks for using COMET. All session data and files have been deleted.')
         else:
@@ -85,14 +85,14 @@ def input():
                     db = pd.read_pickle(database)
                     db = db.drop(['chr', 'pos'], axis=1)
                     rs_df = rs_df.join(db.set_index('rsid'), on='rsid')
-                    rs_df.to_pickle("./uploads/"+filename+"unfiltered.pkl")
+                    rs_df.to_pickle(app.config['UPLOAD_FOLDER']+filename+"unfiltered.pkl")
                     rs_df = rs_df.dropna()
                     rs_df = rs_df.reset_index(drop=True)
-                    os.remove('./uploads/'+filename)
-                    rs_df.to_pickle("./uploads/"+filename+".pkl")
+                    os.remove(app.config['UPLOAD_FOLDER']+filename)
+                    rs_df.to_pickle(app.config['UPLOAD_FOLDER']+filename+".pkl")
                     return redirect(url_for("select"))
                 else:
-                    os.remove('./uploads/'+filename)
+                    os.remove(app.config['UPLOAD_FOLDER']+filename)
                     return render_template("input.html", error = "Error: File could not be parsed. Please check that this is a raw genotype file.")
             else:
                 return render_template("input.html", error = "Error: Incorrect file type. Please upload a .txt file.")
@@ -122,10 +122,10 @@ def index_get_data():
     if session["file"] != "N/A":
         filename = session["file"]
         if "turnoffdb" in session:
-            rs_df = pd.read_pickle("./uploads/"+filename+"unfiltered.pkl")
+            rs_df = pd.read_pickle(app.config['UPLOAD_FOLDER']+filename+"unfiltered.pkl")
             cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene','freq']
         else:
-            rs_df = pd.read_pickle("./uploads/"+filename+".pkl")
+            rs_df = pd.read_pickle(app.config['UPLOAD_FOLDER']+filename+".pkl")
             cols = ['rsid', 'chromosome', 'position', 'genotype', 'substitution', 'gene','freq']
         rs_df_chr = rs_df.loc[rs_df['chr'] == chrom].values.tolist() if chrom != "All" else rs_df.values.tolist()
     else:
@@ -142,7 +142,7 @@ def next_snp():
     filename = session["file"]
     if "turnoffdb" in session:
         filename = filename+"unfiltered"
-    filename = "./uploads/"+filename+".pkl" if filename != "N/A" else database
+    filename = app.config['UPLOAD_FOLDER']+filename+".pkl" if filename != "N/A" else database
     curr_snp = session["rsid"]
     rs_df = pd.read_pickle(filename)
     index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
@@ -158,7 +158,7 @@ def prev_snp():
     filename = session["file"]
     if "turnoffdb" in session:
         filename = filename+"unfiltered"
-    filename = "./uploads/"+filename+".pkl" if filename != "N/A" else database
+    filename = app.config['UPLOAD_FOLDER']+filename+".pkl" if filename != "N/A" else database
     curr_snp = session["rsid"]
     rs_df = pd.read_pickle(filename)
     index = rs_df[rs_df['rsid']==curr_snp].index.values.astype(int)[0]
