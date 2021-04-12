@@ -62,7 +62,10 @@ def findpdb(gene):
         pdbs = []
         count = response.json().get("total_count")
         for i in range(count):
-            pdbs.append((response.json().get("result_set"))[i].get("identifier"))
+            try:
+                pdbs.append((response.json().get("result_set"))[i].get("identifier"))
+            except IndexError:
+                break
         return (pdbs)
     else:
         return "N/A"

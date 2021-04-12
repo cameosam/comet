@@ -377,9 +377,10 @@
       </tr>
     </table>
     <br>
-    <p>Note: UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0
+    <p>Note 1: UEP only evaluates mutations located in highly-packed interface positions. SAAMBE-3D and I-Mutant2.0
       Structure only calculate ∆∆G if the position is present on the pdb structure. PANDA and UEP only calculate ∆∆G
       if the secondary sequence is available.</p>
+    <!-- <p>Note 2: I-Mutant2.0 Structure is currently being worked on.</p> -->
     {% endif %}
     {% if pdb != 'N/A' %}
     <h2 class="result-titles" id="protein-viewer">Protein viewer </h2>
@@ -391,6 +392,7 @@
     {% else %}
     <p class="grey-border">The {{pdbselect}} structure. The {{gene}} protein is shown in purple. </p>
     {% endif %}
+
     <div>
       <script src="https://cdn.rawgit.com/arose/ngl/v0.10.4-1/dist/ngl.js "></script>
       <script>

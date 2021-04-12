@@ -24,6 +24,7 @@ def ddgcalcs(pdb, aasub, gene, protselect):
     secondchain = "*"
     currentprot = "N/A"
     otherprot = "N/A"
+    seconduniprotcode = "N/A"
     if pdb != "N/A":
         # retrieve pdb file
         urllib.request.urlretrieve('http://files.rcsb.org/download/'+pdb+'.pdb', 'prediction/tmp/'+pdb+'.pdb')
@@ -54,6 +55,10 @@ def ddgcalcs(pdb, aasub, gene, protselect):
                             currentprot = mol[3]
                             secondchain = mol[0]
                             seconduniprotcode = mol[2]
+                        else:
+                            currentprot_temp = mol[3]
+                            secondchain_temp = mol[0]
+                            seconduniprotcode_temp = mol[2]
                     else:
                         currentprot = mol[3]
                         secondchain = mol[0]
@@ -62,6 +67,10 @@ def ddgcalcs(pdb, aasub, gene, protselect):
             elif len(mol) < 5 and (gene in mol[2] or uniprotcode in mol[1]):
                 shift = int(mol[3]) - int(mol[0])
                 uniprotcode = mol[1]
+        if protselect != "N/A" and seconduniprotcode == "N/A":
+            currentprot = currentprot_temp
+            secondchain = secondchain_temp
+            seconduniprotcode = seconduniprotcode_temp
         if interactors != [''] and otherprot == []:
             otherprot, seconduniprotcode = get_uniprot_names(interactors, protselect)
     else:
@@ -84,7 +93,8 @@ def ddgcalcs(pdb, aasub, gene, protselect):
             python -O  I-Mutant2.0.py -pdbv ../tmp/'+pdb+'.pdb ../tmp/'+pdb+'.dssp '+chain+' '+str(position - shift)+' '+mutant)
         imut2_val = (imut2_out.decode("utf-8").split("RSA")[1].split("WT")[0]).split()[3] if "I-Mutant" in imut2_out.decode("utf-8") else 'N/A'
         imut2_eff = muteffect(imut2_val,False) if imut2_val != 'N/A' and muteffect(imut2_val,False) else 'N/A'
-        
+        # imut2_val = "Under construction"
+        # imut2_eff = "Under construction"
         if secondchain != "*":
             # UEP calculation
             os.system('cd prediction/uep; python3 UEP.py --pdb=../tmp/'+pdb +'.pdb --interface='+chain+','+secondchain)
