@@ -5,11 +5,14 @@ import itertools
 import os
 import json
 import pandas as pd
-from helperfun import *
-# change ddgcalc_os to ddgcalc_win when using windows
-from ddgcalc_os import ddgcalcs
 import secrets
 import time
+
+from helperfun import *
+# change ddgcalc_os to ddgcalc_win when using windows
+# from ddgcalc_win import ddgcalcs
+from ddgcalc_os import ddgcalcs
+
 
 app = Flask(__name__)
 # MAX 30 mb
