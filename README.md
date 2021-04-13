@@ -27,9 +27,9 @@ Other programs used in this application:<br>
 * NGL Viewer: Rose, A. S., Bradley, A. R., Valasatava, Y., Duarte, J. M., Prlić, A., & Rose, P. W. (2018). NGL viewer: web-based molecular graphics for large complexes. Bioinformatics, 34(21), 3755-3758.
 
 To use multiple Python versions, conda environments were created: <br>
-py3: conda create -n py3 python=3.6 scikit-learn=0.20.3 biopython=1.77 flask=1.1.2 pandas=1.1.3 requests=2.25.1. <br>
+* py3: conda create -n py3 python=3.6 scikit-learn=0.20.3 biopython=1.77 flask=1.1.2 pandas=1.1.3 requests=2.25.1. <br>
+* py2: conda create -n py2 python=2.7 numpy=1.16.6 py-xgboost=0.90 pandas=0.22.0.<br>
 Prody (1.10.8) and compress_pickle (1.2.0) (for UEP) were installed using pip. <br>
-py2: conda create -n py2 python=2.7 numpy=1.16.6 py-xgboost=0.90 pandas=0.22.0.<br>
 
 Two empty folders must be created: uploads (main folder) and tmp (prediction folder). The uploads folder stores the uploaded genotype text and pickle files and the temporary folder (tmp) stores the pdb and sequences files. The ∆∆G predictors' program files and dependencies are in the prediction folder.
 
