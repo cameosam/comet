@@ -15,7 +15,7 @@ app = Flask(__name__)
 # MAX 30 mb
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 30 
 app.config['UPLOAD_FOLDER'] = 'uploads/'
-app.config['SECRET_KEY'] = "supersecretkey_MUSTBECHANGED!"
+app.config['SECRET_KEY'] = "temporarysecretkey"
 app.config['SESSION_PERMANENT'] = True
 database = "snp-db/snpDB_v5.pkl"
 
