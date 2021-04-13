@@ -1,6 +1,6 @@
 # COMET
 Honours Thesis Project. <br>
-COMET (Comparative mutation effect) is a web application that analyzes genotype data in terms of protein-protein interactions (PPIs) by calculating the change in binding affinity (∆∆G) 
+COMET (Comparative mutation effect tool) is a web application that analyzes genotype data in terms of protein-protein interactions (PPIs) by calculating the change in binding affinity (∆∆G) 
 
 # Dependencies and Installation
 This application uses four ∆∆G predictors: <br>
@@ -34,4 +34,4 @@ Prody (1.10.8) and compress_pickle (1.2.0) (for UEP) were installed using pip. <
 
 Two empty folders must be created: uploads (main folder) and tmp (prediction folder). The uploads folder stores the uploaded genotype text and pickle files and the temporary folder (tmp) stores the pdb and sequences files. The ∆∆G predictors' program files and dependencies are in the prediction folder.
 
-Paths in the ddgcalc files must also be edited to access your conda path. When using Windows, ddgcalc_win.py must be used. When using macOS, ddgcalc_os.py must be used. Choice of file can be change in main.py. I-Mutant2.0 structure is not currently configured for Windows.
+Paths in the ddgcalc files must also be edited to access your conda environments. When using Windows, ddgcalc_win.py must be used. When using macOS, ddgcalc_os.py must be used. Choice of file can be change in main.py. I-Mutant2.0 structure is not currently configured for Windows.
