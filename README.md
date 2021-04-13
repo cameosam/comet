@@ -31,4 +31,6 @@ py3: conda create -n py3 python=3.6 scikit-learn=0.20.3 biopython=1.77 flask=1.1
 Prody (1.10.8) and compress_pickle (1.2.0) (for UEP) were installed using pip. <br>
 py2: conda create -n py2 python=2.7 numpy=1.16.6 py-xgboost=0.90 pandas=0.22.0.<br>
 
-Two empty folders must be created: uploads (main folder) and tmp (prediction folder). The uploads folder stores the uploaded genotype text and pickle files and the temporary folder (tmp) stores the pdb and sequences files. The ∆∆G predictors' program files are in the prediction folder.
+Two empty folders must be created: uploads (main folder) and tmp (prediction folder). The uploads folder stores the uploaded genotype text and pickle files and the temporary folder (tmp) stores the pdb and sequences files. The ∆∆G predictors' program files and dependencies are in the prediction folder.
+
+Paths in the ddgcalc files must also be edited to access your conda path. When using Windows, ddgcalc_win.py must be used. When using macOS, ddgcalc_os.py must be used. Choice of file can be change in main.py. I-Mutant2.0 structure is not currently configured for Windows.
