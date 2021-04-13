@@ -156,7 +156,6 @@ def getsequence(uniprotcode):
 
 def get_uniprot_code_ints(gene):
     baseUrl = "http://www.uniprot.org/uniprot/"
-    # query = "?query=reviewed:yes+AND+gene_exact:"+gene+"+organism:9606&format=list"
     query = "?query=reviewed:yes+AND+gene_exact:"+gene+"+organism:9606&columns=id,interactor&format=tab"  
     currentUrl = baseUrl+query
     response = requests.post(currentUrl)
@@ -205,6 +204,7 @@ def deletefiles(files):
 def comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm):
     mutlist = []
     count = 0
+    # separate genotype
     if len(genotype) > 1:
         for i in range(len(sorted_nuclist[0])):
             mutlist.append(sorted_nuclist[0][i][2])
@@ -217,7 +217,7 @@ def comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm):
             mutlist.append(sorted_nuclist[0][i][2])
         if genotype in mutlist:
             count -= 1
-
+    # calcaulte average nucleotide frequency
     if 'N/A' not in freq_kg and 'N/A' not in freq_hm:
         try:
             avg_freq = round((float(freq_kg[3:]) + float(freq_hm[3:]))/2*100,2)
@@ -235,5 +235,4 @@ def comparegeno(genotype, sorted_nuclist, freq_kg, freq_hm):
             avg_freq = -1
     else:
         avg_freq = -1
-
     return [count, avg_freq]
