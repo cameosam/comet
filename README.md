@@ -17,7 +17,7 @@ Nucleic acids research, 33, W306 - W310.
 * UEP: Amengual-Rigo, P., Fernández-Recio, J., & Guallar, V. (2020). UEP: an open-source and fast classifier for predicting the impact of mutations in protein–protein complexes. Bioinformatics.
 <a href="https://github.com/pepamengual/UEP">UEP GitHub Link</a>  
 
-Other programs used in the application:<br>
+Other programs used in this application:<br>
 * DSSP: Touw, W. G., Baakman, C., Black, J., Te Beek, T. A., Krieger, E., Joosten, R. P., & Vriend, G. (2015). A series of PDB-related databanks for everyday needs. Nucleic acids research, 43(D1), D364-D368.
 
 * LitVar: Allot, A., Peng, Y., Wei, C. H., Lee, K., Phan, L., & Lu, Z. (2018). LitVar: a semantic search engine for linking genomic variant data in PubMed and PMC. Nucleic acids research, 46(W1), W530-W536.
