@@ -36,4 +36,4 @@ When using the application, the py3 conda environment is the main environment an
 
 Two empty folders must be created: uploads (main folder) and tmp (prediction folder). The uploads folder stores the uploaded genotype text and pickle files and the temporary folder (tmp) stores the pdb and sequences files. The ∆∆G predictors' program files and dependencies are in the prediction folder.
 
-Paths in the ddgcalc files must also be edited to access your conda environments. When using Windows, ddgcalc_win.py must be used. When using macOS, ddgcalc_os.py must be used. Choice of file can be changed in main.py. I-Mutant2.0 structure is not currently configured for Windows. The entrez.email in helperfun.py should also be edited.
+The condapath in the ddgcalc files must also be edited to access your conda environments. When using Windows, ddgcalc_win.py must be used. When using macOS, ddgcalc_os.py must be used. Choice of file can be changed in main.py. I-Mutant2.0 structure is not currently configured for Windows. The entrez.email in helperfun.py should also be edited.
